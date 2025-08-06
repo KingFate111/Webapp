@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SphereTrade - Multi-Asset Investment Platform</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #00c851;
+            --danger-color: #ff4444;
+            --warning-color: #ffbb33;
+            --dark-color: #1a1a1a;
+            --light-color: #ffffff;
+            --bg-color: #f8f9fa;
+            --border-color: #e1e5e9;
+            --text-color: #333333;
+            --text-muted: #6c757d;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--light-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+            box-shadow: var(--card-shadow);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            font-weight: bold;
+        }
+        a{
+            text-decoration: none;
+        }
+
+        .brand-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .indices-ticker {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex: 1;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .index-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 110px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .index-item:hover {
+            background: var(--bg-color);
+        }
+
+        .index-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .index-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .index-change {
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .positive {
+            color: var(--secondary-color);
+        }
+
+        .negative {
+            color: var(--danger-color);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-balance {
+            text-align: right;
+        }
+
+        .balance-label {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .balance-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            background: var(--light-color);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            z-index: 900;
+        }
+
+        .nav-section {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 0 20px 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            margin: 2px 0;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-color);
+        }
+
+        .nav-item.active {
+            background: rgba(0, 102, 204, 0.1);
+            border-left-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            min-height: calc(100vh - var(--header-height));
+            background: var(--bg-color);
+        }
+
+        .content-container {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: var(--text-muted);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .portfolio-overview {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portfolio-overview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        .portfolio-value {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .portfolio-change {
+            font-size: 16px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+
+        .portfolio-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .quick-actions {
+            display: grid;
+            gap: 15px;
+        }
+
+        .action-card {
+            background: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--card-shadow-hover);
+            border-color: var(--primary-color);
+        }
+
+        .action-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .action-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .action-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Asset Classes Grid */
+        .asset-classes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .asset-card {
+            background: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+        }
+
+        .asset-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .asset-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .asset-icon {
+            font-size: 28px;
+        }
+
+        .asset-info h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .asset-info p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .asset-content {
+            padding: 20px;
+        }
+
+        .asset-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .asset-stat {
+            text-align: center;
+        }
+
+        .asset-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .asset-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Market Data Tables */
+        .market-section {
+            background: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .market-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-color);
+        }
+
+        .market-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .market-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .market-tab {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background: transparent;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .market-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .market-tab:hover:not(.active) {
+            background: var(--bg-color);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .market-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .market-table th {
+            background: var(--bg-color);
+            padding: 15px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .market-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .market-table tr:hover {
+            background: var(--bg-color);
+            cursor: pointer;
+        }
+
+        .symbol {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .company-name {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .price {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .change {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Charts */
+        .chart-container {
+            background: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chart-canvas {
+            position: relative;
+            height: 350px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #00a840;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #cc0000;
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Portfolio Page Specific */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .holdings-summary {
+            display: grid;
+            gap: 12px;
+        }
+
+        .holding-item {
+            background: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .holding-item:hover {
+            transform: translateX(5px);
+            border-color: var(--primary-color);
+        }
+
+        .holding-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .holding-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .holding-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .holding-value {
+            text-align: right;
+        }
+
+        .holding-amount {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .holding-change {
+            font-size: 12px;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 90px;
+            right: 30px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 3000;
+            display: none;
+            min-width: 300px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .toast.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.error {
+            background: var(--danger-color);
+        }
+
+        .toast.info {
+            background: var(--primary-color);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .indices-ticker {
+                gap: 15px;
+            }
+            
+            .index-item {
+                min-width: 90px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --sidebar-width: 0px;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .indices-ticker {
+                display: none;
+            }
+            
+            .content-container {
+                padding: 20px;
+            }
+            
+            .portfolio-value {
+                font-size: 32px;
+            }
+            
+            .asset-classes {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-canvas {
+                height: 250px;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-section">
+         <a href="index.html.html">   <div class="logo">ST</div></a>
+            <div class="brand-name">SphereTrade</div>
+        </div>
+        
+        <!-- Major Indices Ticker -->
+        <div class="indices-ticker">
+            <div class="index-item">
+                <div class="index-name">NIFTY 50</div>
+                <div class="index-value">24,475.85</div>
+                <div class="index-change positive">
+                    <span>▲</span>
+                    <span>+185.40 (+0.83%)</span>
+                </div>
+            </div>
+            <div class="index-item">
+                <div class="index-name">SENSEX</div>
+                <div class="index-value">74,085.95</div>
+                <div class="index-change positive">
+                    <span>▲</span>
+                    <span>+612.75 (+0.83%)</span>
+                </div>
+            </div>
+            <div class="index-item">
+                <div class="index-name">BANK NIFTY</div>
+                <div class="index-value">48,245.30</div>
+                <div class="index-change negative">
+                    <span>▼</span>
+                    <span>-125.80 (-0.26%)</span>
+                </div>
+            </div>
+            <div class="index-item">
+                <div class="index-name">NASDAQ</div>
+                <div class="index-value">15,832.80</div>
+                <div class="index-change positive">
+                    <span>▲</span>
+                    <span>+95.60 (+0.61%)</span>
+                </div>
+            </div>
+            <div class="index-item">
+                <div class="index-name">BITCOIN</div>
+                <div class="index-value">₹42,85,450</div>
+                <div class="index-change positive">
+                    <span>▲</span>
+                    <span>+2.34%</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="user-section">
+            <div class="user-balance">
+                <div class="balance-label">Available Balance</div>
+                <div class="balance-value">₹4,52,380.50</div>
+            </div>
+          <a href="profile.html" >  <div class="user-avatar" onclick="toggleProfile()">P</div></a>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="nav-section">
+            <div class="nav-title">Trading</div>
+            <div class="nav-item active" onclick="showPage('dashboard')">
+                <div class="nav-icon">📊</div>
+                <div class="nav-label">Dashboard</div>
+            </div>
+            <div class="nav-item" onclick="showPage('market')">
+                <div class="nav-icon">📈</div>
+              <a href="market2.html">  <div class="nav-label">Markets</div></a>
+            </div>
+            <div class="nav-item" onclick="showPage('portfolio')">
+                <div class="nav-icon">💼</div>
+                <div class="nav-label">Portfolio</div>
+            </div>
+            <div class="nav-item" onclick="showPage('watchlist')">
+                <div class="nav-icon">👁️</div>
+              <a href="market2.html"> <div class="nav-label">Watchlist</div></a>
+            </div>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Orders & Funds</div>
+            <div class="nav-item" onclick="showPage('orders')">
+                <div class="nav-icon">📋</div>
+                <a href="orders.html"><div class="nav-label">Orders</div></a>
+            </div>
+            <div class="nav-item" onclick="showPage('funds')">
+                <div class="nav-icon">💰</div>
+              <a href="funds.html">  <div class="nav-label">Funds</div></a>
+            </div>
+            <div class="nav-item" onclick="showPage('reports')">
+                <div class="nav-icon">📊</div>
+              <a href="reports.html">  <div class="nav-label">Reports</div></a>
+            </div>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Asset Classes</div>
+            <div class="nav-item" onclick="showAssetClass('indian-stocks')">
+                <div class="nav-icon">🇮🇳</div>
+                <div class="nav-label">Indian Stocks</div>
+            </div>
+            <div class="nav-item" onclick="showAssetClass('us-stocks')">
+                <div class="nav-icon">🇺🇸</div>
+                <div class="nav-label">US Stocks</div>
+            </div>
+            <div class="nav-item" onclick="showAssetClass('crypto')">
+                <div class="nav-icon">₿</div>
+                <div class="nav-label">Crypto</div>
+            </div>
+            <div class="nav-item" onclick="showAssetClass('forex')">
+                <div class="nav-icon">💱</div>
+                <div class="nav-label">Forex</div>
+            </div>
+            <div class="nav-item" onclick="showAssetClass('bonds')">
+                <div class="nav-icon">🧾</div>
+                <div class="nav-label">Bonds</div>
+            </div>
+            <div class="nav-item" onclick="showAssetClass('commodities')">
+                <div class="nav-icon">🥇</div>
+                <a href="commodities.html"><div class="nav-label">Commodities</div></a>
+            </div>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Tools</div>
+            <div class="nav-item" onclick="showPage('research')">
+                <div class="nav-icon">🔍</div>
+               <a href="https://www.screener.in/company/RELIANCE/consolidated/" target="_blank"> <div class="nav-label">Research Indian Stocks</div></a>
+            </div>
+            <div class="nav-item" onclick="showPage('research')">
+                <div class="nav-icon">🔍</div>
+               <a href="https://finance.yahoo.com/quote/AAPL/" target="_blank"> <div class="nav-label">Research US  Stocks</div></a>
+            </div>
+            <div class="nav-item" onclick="showPage('alerts')">
+                <div class="nav-icon">🔔</div>
+               <a href="alerts.html"> <div class="nav-label">Price Alerts</div></a>
+            </div>
+            <!-- <div class="nav-item" onclick="showPage('settings')">
+                <div class="nav-icon">⚙️</div>
+               <a href="setting.html"> <div class="nav-label">Settings</div></a>
+            </div> -->
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Page -->
+        <div id="dashboard" class="page active">
+            <div class="content-container">
+                <div class="page-header">
+                    <h1 class="page-title">Good Morning, Pradumnya!</h1>
+                    <p class="page-subtitle">Here's your investment overview for today</p>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="portfolio-overview">
+                        <div class="portfolio-value">₹12,45,680.50</div>
+                        <div class="portfolio-change">
+                            <span>📈</span>
+                            <span>+₹23,450.75 (+1.92%) Today</span>
+                        </div>
+                        <div class="portfolio-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">+15.6%</div>
+                                <div class="stat-label">Total Returns</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">18.2%</div>
+                                <div class="stat-label">XIRR</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">₹10,75,430</div>
+                                <div class="stat-label">Invested</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">₹1,70,250</div>
+                                <div class="stat-label">Total Gains</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <div class="action-card" onclick="quickTrade()">
+                            <div class="action-icon">⚡</div>
+                           <a href="https://in.tradingview.com/chart/" target="_blank"><div class="action-title">Quick Trade</div></a> 
+                            <div class="action-subtitle">Place instant market orders</div>
+                        </div>
+                        <div class="action-card" onclick="addFunds()">
+                            <div class="action-icon">💳</div>
+                          <a href="funds.html"> <div class="action-title">Add Funds</div></a> 
+                            <div class="action-subtitle">Instant via UPI/Bank</div>
+                        </div>
+                        <div class="action-card" onclick="viewReports()">
+                            <div class="action-icon">📊</div>
+                            <div class="action-title">Tax Reports</div>
+                            <div class="action-subtitle">Download P&L statements</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Asset Classes Overview -->
+                <div class="asset-classes">
+                    <div class="asset-card">
+                        <div class="asset-header">
+                            <div class="asset-icon">🇮🇳</div>
+                            <div class="asset-info">
+                                <h3>Indian Stocks</h3>
+                                <p>NSE & BSE Listed Equities</p>
+                            </div>
+                        </div>
+                        <div class="asset-content">
+                            <div class="asset-stats">
+                                <div class="asset-stat">
+                                    <div class="asset-stat-value">₹8,09,692</div>
+                                    <div class="asset-stat-label">Investment</div>
+                                </div>
+                                <div class="asset-stat">
+                                    <div class="asset-stat-value positive">+16.8%</div>
+                                    <div class="asset-stat-label">Returns</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="showAssetClass('indian-stocks')">View Holdings</button>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card">
+                        <div class="asset-header">
+                            <div class="asset-icon">🇺🇸</div>
+                            <div class="asset-info">
+                                <h3>US Stocks</h3>
+                                <p>Fractional Share Trading</p>
+                            </div>
+                        </div>
+                        <div class="asset-content">
+                            <div class="asset-stats">
+                                <div class="asset-stat">
+                                    <div class="asset-stat-value">₹1,86,852</div>
+                                    <div class="asset-stat-label">Investment</div>
+                                </div>
+                                <div class="asset-stat">
+                                    <div class="asset-stat-value positive">+14.7%</div>
+                                    <div class="asset-stat-label">Returns</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="showAssetClass('us-stocks')">View Holdings</button>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card">
+                        <div class="asset-header">
+                            <div class="asset-icon">₿</div>
+                            <div class="asset-info">
+                                <h3>Cryptocurrency</h3>
+                                <p>Bitcoin, Ethereum & More</p>
+                            </div>
+                        </div>
+                        <div class="asset-content">
+                            <div class="asset-stats">
+                                <div class="asset-stat">
+                                    <div class="asset-stat-value">₹1,24,568</div>
+                                    <div class="asset-stat-label">Investment</div>
+                                </div>
+                                <div class="asset-stat">
+                                    <div class="asset-stat-value positive">+25.9%</div>
+                                    <div class="asset-stat-label">Returns</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="showAssetClass('crypto')">View Holdings</button>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card">
+                        <div class="asset-header">
+                            <div class="asset-icon">💱</div>
+                            <div class="asset-info">
+                                <h3>Forex Trading</h3>
+                                <p>Currency Pairs & CFDs</p>
+                            </div>
+                        </div>
+                        <div class="asset-content">
+                            <div class="asset-stats">
+                                <div class="asset-stat">
+                                    <div class="asset-stat-value">₹85,420</div>
+                                    <div class="asset-stat-label">Investment</div>
+                                </div>
+                                <div class="asset-stat">
+                                    <div class="asset-stat-value negative">-2.1%</div>
+                                    <div class="asset-stat-label">Returns</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="showAssetClass('forex')">View Positions</button>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card">
+                        <div class="asset-header">
+                            <div class="asset-icon">🧾</div>
+                            <div class="asset-info">
+                                <h3>Bonds & FDs</h3>
+                                <p>Government & Corporate Bonds</p>
+                            </div>
+                        </div>
+                        <div class="asset-content">
+                            <div class="asset-stats">
+                                <div class="asset-stat">
+                                    <div class="asset-stat-value">₹99,680</div>
+                                    <div class="asset-stat-label">Investment</div>
+                                </div>
+                                <div class="asset-stat">
+                                    <div class="asset-stat-value positive">+5.6%</div>
+                                    <div class="asset-stat-label">Returns</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="showAssetClass('bonds')">View Bonds</button>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card">
+                        <div class="asset-header">
+                            <div class="asset-icon">🥇</div>
+                            <div class="asset-info">
+                                <h3>Commodities</h3>
+                                <p>Gold, Silver & Crude Oil</p>
+                            </div>
+                        </div>
+                        <div class="asset-content">
+                            <div class="asset-stats">
+                                <div class="asset-stat">
+                                    <div class="asset-stat-value">₹24,882</div>
+                                    <div class="asset-stat-label">Investment</div>
+                                </div>
+                                <div class="asset-stat">
+                                    <div class="asset-stat-value positive">+4.9%</div>
+                                    <div class="asset-stat-label">Returns</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="showAssetClass('commodities')">View Commodities</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Market Overview -->
+                <div class="market-section">
+                    <div class="market-header">
+                        <a href="markets.html"></a><h2 class="market-title">Market Overview</h2>
+                        <div class="market-tabs">
+                            <button class="market-tab active" onclick="switchMarketTab('trending')">Trending</button>
+                            <button class="market-tab" onclick="switchMarketTab('gainers')">Top Gainers</button>
+                            <button class="market-tab" onclick="switchMarketTab('losers')">Top Losers</button>
+                            <button class="market-tab" onclick="switchMarketTab('volume')">High Volume</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="market-table">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>LTP</th>
+                                    <th>Change</th>
+                                    <th>% Change</th>
+                                    <th>Volume</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="marketTableBody">
+                                <tr onclick="openTradingModal('RELIANCE')">
+                                    <td>
+                                        <div class="symbol">RELIANCE</div>
+                                        <div class="company-name">Reliance Industries Ltd.</div>
+                                    </td>
+                                    <td class="price">₹2,445.50</td>
+                                    <td class="change positive">+₹58.20</td>
+                                    <td class="change positive">+2.4%</td>
+                                    <td>12.5M</td>
+                                    <td><button class="btn btn-success">Buy</button></td>
+                                </tr>
+                                <tr onclick="openTradingModal('TCS')">
+                                    <td>
+                                        <div class="symbol">TCS</div>
+                                        <div class="company-name">Tata Consultancy Services</div>
+                                    </td>
+                                    <td class="price">₹3,890.75</td>
+                                    <td class="change negative">-₹45.25</td>
+                                    <td class="change negative">-1.1%</td>
+                                    <td>8.3M</td>
+                                    <td><button class="btn btn-success">Buy</button></td>
+                                </tr>
+                                <tr onclick="openTradingModal('HDFCBANK')">
+                                    <td>
+                                        <div class="symbol">HDFCBANK</div>
+                                        <div class="company-name">HDFC Bank Limited</div>
+                                    </td>
+                                    <td class="price">₹1,675.80</td>
+                                    <td class="change positive">+₹12.30</td>
+                                    <td class="change positive">+0.7%</td>
+                                    <td>15.2M</td>
+                                    <td><button class="btn btn-success">Buy</button></td>
+                                </tr>
+                                <tr onclick="openTradingModal('INFY')">
+                                    <td>
+                                        <div class="symbol">INFY</div>
+                                        <div class="company-name">Infosys Limited</div>
+                                    </td>
+                                    <td class="price">₹1,456.30</td>
+                                    <td class="change positive">+₹23.40</td>
+                                    <td class="change positive">+1.6%</td>
+                                    <td>9.8M</td>
+                                    <td><button class="btn btn-success">Buy</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Portfolio Performance Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Portfolio Performance</h3>
+                        <div class="market-tabs">
+                            <button class="market-tab active">1D</button>
+                            <button class="market-tab">1W</button>
+                            <button class="market-tab">1M</button>
+                            <button class="market-tab">1Y</button>
+                            <button class="market-tab">All</button>
+                        </div>
+                    </div>
+                    <div class="chart-canvas">
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Portfolio Page -->
+        <div id="portfolio" class="page">
+            <div class="content-container">
+                <div class="page-header">
+                    <h1 class="page-title">Portfolio Overview</h1>
+                    <p class="page-subtitle">Track your investments across all asset classes</p>
+                </div>
+                
+                <div class="portfolio-grid">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Asset Allocation</h3>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="allocationChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 style="margin-bottom: 20px;">Holdings Summary</h3>
+                        <div class="holdings-summary">
+                            <div class="holding-item">
+                                <div class="holding-info">
+                                    <div class="holding-title">Indian Stocks (65%)</div>
+                                    <div class="holding-subtitle">15 Holdings</div>
+                                </div>
+                                <div class="holding-value">
+                                    <div class="holding-amount">₹9,45,230</div>
+                                    <div class="holding-change positive">+₹1,35,538</div>
+                                </div>
+                            </div>
+                            <div class="holding-item">
+                                <div class="holding-info">
+                                    <div class="holding-title">US Stocks (15%)</div>
+                                    <div class="holding-subtitle">8 Holdings</div>
+                                </div>
+                                <div class="holding-value">
+                                    <div class="holding-amount">₹2,14,320</div>
+                                    <div class="holding-change positive">+₹27,468</div>
+                                </div>
+                            </div>
+                            <div class="holding-item">
+                                <div class="holding-info">
+                                    <div class="holding-title">Crypto (10%)</div>
+                                    <div class="holding-subtitle">5 Holdings</div>
+                                </div>
+                                <div class="holding-value">
+                                    <div class="holding-amount">₹1,56,780</div>
+                                    <div class="holding-change positive">+₹32,212</div>
+                                </div>
+                            </div>
+                            <div class="holding-item">
+                                <div class="holding-info">
+                                    <div class="holding-title">Bonds (8%)</div>
+                                    <div class="holding-subtitle">3 Holdings</div>
+                                </div>
+                                <div class="holding-value">
+                                    <div class="holding-amount">₹1,05,240</div>
+                                    <div class="holding-change positive">+₹5,560</div>
+                                </div>
+                            </div>
+                            <div class="holding-item">
+                                <div class="holding-info">
+                                    <div class="holding-title">Commodities (2%)</div>
+                                    <div class="holding-subtitle">2 Holdings</div>
+                                </div>
+                                <div class="holding-value">
+                                    <div class="holding-amount">₹26,110</div>
+                                    <div class="holding-change positive">+₹1,228</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Detailed Holdings Table -->
+                <div class="market-section">
+                    <div class="market-header">
+                        <h2 class="market-title">Detailed Holdings</h2>
+                        <div class="market-tabs">
+                            <button class="market-tab active" onclick="filterHoldings('all')">All</button>
+                            <button class="market-tab" onclick="filterHoldings('stocks')">Stocks</button>
+                            <button class="market-tab" onclick="filterHoldings('mutual-funds')">Mutual Funds</button>
+                            <button class="market-tab" onclick="filterHoldings('crypto')">Crypto</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="market-table">
+                            <thead>
+                                <tr>
+                                    <th>Instrument</th>
+                                    <th>Qty/Units</th>
+                                    <th>Avg. Cost</th>
+                                    <th>LTP</th>
+                                    <th>Current Value</th>
+                                    <th>P&L</th>
+                                    <th>Day P&L</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="symbol">RELIANCE</div>
+                                        <div class="company-name">Reliance Industries Ltd.</div>
+                                    </td>
+                                    <td>150</td>
+                                    <td>₹2,165.20</td>
+                                    <td class="price">₹2,445.50</td>
+                                    <td>₹3,66,825</td>
+                                    <td class="change positive">+₹42,045 (+12.9%)</td>
+                                    <td class="change positive">+₹8,730</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="symbol">TCS</div>
+                                        <div class="company-name">Tata Consultancy Services</div>
+                                    </td>
+                                    <td>75</td>
+                                    <td>₹3,650.80</td>
+                                    <td class="price">₹3,890.75</td>
+                                    <td>₹2,91,806</td>
+                                    <td class="change positive">+₹17,996 (+6.6%)</td>
+                                    <td class="change negative">-₹3,394</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="symbol">BITCOIN</div>
+                                        <div class="company-name">Bitcoin</div>
+                                    </td>
+                                    <td>0.15 BTC</td>
+                                    <td>₹38,45,200</td>
+                                    <td class="price">₹42,85,450</td>
+                                    <td>₹6,42,818</td>
+                                    <td class="change positive">+₹66,038 (+11.4%)</td>
+                                    <td class="change positive">+₹14,650</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Orders Page -->
+        <div id="orders" class="page">
+            <div class="content-container">
+                <div class="page-header">
+                    <h1 class="page-title">Order Management</h1>
+                    <p class="page-subtitle">Track and manage all your trading orders</p>
+                </div>
+                
+                <div class="market-section">
+                    <div class="market-header">
+                        <h2 class="market-title">Recent Orders</h2>
+                        <div class="market-tabs">
+                            <button class="market-tab active" onclick="filterOrders('all')">All</button>
+                            <button class="market-tab" onclick="filterOrders('pending')">Pending</button>
+                            <button class="market-tab" onclick="filterOrders('executed')">Executed</button>
+                            <button class="market-tab" onclick="filterOrders('cancelled')">Cancelled</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="market-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Instrument</th>
+                                    <th>Type</th>
+                                    <th>Side</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr data-status="executed">
+                                    <td>10:32 AM</td>
+                                    <td>RELIANCE</td>
+                                    <td>Market</td>
+                                    <td><span class="positive">BUY</span></td>
+                                    <td>25</td>
+                                    <td>₹2,440.50</td>
+                                    <td><span class="positive">Executed</span></td>
+                                    <td>—</td>
+                                </tr>
+                                <tr data-status="pending">
+                                    <td>09:45 AM</td>
+                                    <td>TCS</td>
+                                    <td>Limit</td>
+                                    <td><span class="negative">SELL</span></td>
+                                    <td>10</td>
+                                    <td>₹3,950.00</td>
+                                    <td><span style="color: orange;">Pending</span></td>
+                                    <td><button class="btn btn-danger">Cancel</button></td>
+                                </tr>
+                                <tr data-status="executed">
+                                    <td>Yesterday</td>
+                                    <td>BITCOIN</td>
+                                    <td>Market</td>
+                                    <td><span class="positive">BUY</span></td>
+                                    <td>0.01 BTC</td>
+                                    <td>₹42,15,320</td>
+                                    <td><span class="positive">Executed</span></td>
+                                    <td>—</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Market Page -->
+        <div id="market" class="page">
+            <div class="content-container">
+                <div class="page-header">
+                    <h1 class="page-title">Market Data</h1>
+                    <p class="page-subtitle">Real-time market information and analysis</p>
+                </div>
+                
+                <div class="market-section">
+                    <div class="market-header">
+                        <h2 class="market-title">Top Movers</h2>
+                        <div class="market-tabs">
+                            <button class="market-tab active">Gainers</button>
+                            <button class="market-tab">Losers</button>
+                            <button class="market-tab">Most Active</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="market-table">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>LTP</th>
+                                    <th>Change</th>
+                                    <th>% Change</th>
+                                    <th>Volume</th>
+                                    <th>Market Cap</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="symbol">ADANIENT</div>
+                                        <div class="company-name">Adani Enterprises Ltd.</div>
+                                    </td>
+                                    <td class="price">₹2,856.40</td>
+                                    <td class="change positive">+₹185.60</td>
+                                    <td class="change positive">+7.0%</td>
+                                    <td>5.2M</td>
+                                    <td>₹3,24,580 Cr</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="symbol">BAJFINANCE</div>
+                                        <div class="company-name">Bajaj Finance Ltd.</div>
+                                    </td>
+                                    <td class="price">₹6,845.75</td>
+                                    <td class="change positive">+₹425.25</td>
+                                    <td class="change positive">+6.6%</td>
+                                    <td>2.8M</td>
+                                    <td>₹4,12,680 Cr</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Watchlist Page -->
+        <div id="watchlist" class="page">
+            <div class="content-container">
+                <div class="page-header">
+                    <h1 class="page-title">My Watchlist</h1>
+                    <p class="page-subtitle">Keep track of your favorite securities</p>
+                </div>
+                
+                <div class="market-section">
+                    <div class="market-header">
+                        <h2 class="market-title">Watchlist Items</h2>
+                        <button class="btn btn-primary">Add Symbol</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="market-table">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>LTP</th>
+                                    <th>Change</th>
+                                    <th>% Change</th>
+                                    <th>Alert</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="symbol">TSLA</div>
+                                        <div class="company-name">Tesla Inc.</div>
+                                    </td>
+                                    <td class="price">$248.50</td>
+                                    <td class="change positive">+$12.30</td>
+                                    <td class="change positive">+5.2%</td>
+                                    <td>📈 $250</td>
+                                    <td><button class="btn btn-success">Trade</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toastMessage">Notification message</span>
+    </div>
+
+    <script>
+        let currentPage = 'dashboard';
+        let stockPrices = {
+            'RELIANCE': 2445.50,
+            'TCS': 3890.75,
+            'HDFCBANK': 1675.80,
+            'INFY': 1456.30
+        };
+
+        // Navigation Functions
+        function showPage(pageName) {
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            event.currentTarget.classList.add('active');
+            
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageName).classList.add('active');
+            currentPage = pageName;
+        }
+
+        function showAssetClass(assetClass) {
+            showToast(`Opening ${assetClass} trading interface...`);
+        }
+
+        // Market Tab Functions
+        function switchMarketTab(tabType) {
+            document.querySelectorAll('.market-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            showToast(`Loading ${tabType} data...`);
+        }
+
+        // Filter Functions
+        function filterOrders(status) {
+            document.querySelectorAll('.market-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            const rows = document.querySelectorAll('#orders tbody tr');
+            rows.forEach(row => {
+                if (status === 'all' || row.dataset.status === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function filterHoldings(type) {
+            document.querySelectorAll('.market-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            showToast(`Filtering ${type} holdings...`);
+        }
+
+        // Quick Action Functions
+        function quickTrade() {
+            showToast('Opening quick trade interface...', 'info');
+        }
+
+        function addFunds() {
+            showToast('Redirecting to payment gateway...', 'info');
+        }
+
+        function viewReports() {
+            showToast('Generating tax reports...', 'info');
+        }
+
+        function toggleProfile() {
+            showToast('Profile menu coming soon...', 'info');
+        }
+
+        // Utility Functions
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toast.className = `toast ${type}`;
+            toastMessage.textContent = message;
+            toast.classList.add('active');
+            
+            setTimeout(() => {
+                toast.classList.remove('active');
+            }, 3000);
+        }
+
+        // Chart Initialization
+        function initializeCharts() {
+            // Portfolio Performance Chart
+            const portfolioCtx = document.getElementById('portfolioChart');
+            if (portfolioCtx) {
+                new Chart(portfolioCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                        datasets: [{
+                            label: 'Portfolio Value',
+                            data: [1050000, 1120000, 1080000, 1180000, 1150000, 1220000, 1190000, 1245680],
+                            borderColor: 'rgb(0, 102, 204)',
+                            backgroundColor: 'rgba(0, 102, 204, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₹' + (value / 100000).toFixed(1) + 'L';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Asset Allocation Chart
+            const allocationCtx = document.getElementById('allocationChart');
+            if (allocationCtx) {
+                new Chart(allocationCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Indian Stocks', 'US Stocks', 'Crypto', 'Bonds', 'Commodities'],
+                        datasets: [{
+                            data: [65, 15, 10, 8, 2],
+                            backgroundColor: [
+                                '#0066cc',
+                                '#00c851',
+                                '#ffbb33',
+                                '#17a2b8',]

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SphereTrade - Invest Across Assets</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --bg: #f9fafb;
+            --card-bg: #ffffff;
+            --text: #111827;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        nav a.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-pic {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .net-worth-card {
+            grid-column: span 4;
+        }
+
+        .net-worth-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .pnl {
+            display: flex;
+            gap: 20px;
+        }
+
+        .pnl-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pnl-label {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .pnl-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .positive {
+            color: var(--secondary);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        .allocation-card {
+            grid-column: span 4;
+        }
+
+        .chart-container {
+            height: 200px;
+            margin-top: 20px;
+        }
+
+        .asset-tabs {
+            grid-column: span 12;
+        }
+
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .asset-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .asset-table th, .asset-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .asset-table th {
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .asset-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Order Form Styles */
+        .order-form-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            display: none;
+        }
+
+        .order-form {
+            background-color: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            padding: 25px;
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .form-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-buy {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-sell {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .order-summary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f3f4f6;
+            border-radius: 6px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .net-worth-card, .allocation-card {
+                grid-column: span 1;
+            }
+            
+            nav ul {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">SphereTrade</div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active">Dashboard</a></li>
+                    <li><a href="#">Markets</a></li>
+                    <li><a href="#">Portfolio</a></li>
+                    <li><a href="#">Orders</a></li>
+                    <li><a href="#">Funds</a></li>
+                </ul>
+            </nav>
+            <div class="user-profile">
+                <div class="profile-pic">AS</div>
+                <span>Akshay S</span>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Net Worth Card -->
+            <div class="card net-worth-card">
+                <div class="card-header">
+                    <div class="card-title">Net Worth</div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">View Details</button>
+                    </div>
+                </div>
+                <div class="net-worth-value">₹1,87,456</div>
+                <div class="pnl">
+                    <div class="pnl-item">
+                        <div class="pnl-label">Invested</div>
+                        <div class="pnl-value">₹1,52,000</div>
+                    </div>
+                    <div class="pnl-item">
+                        <div class="pnl-label">Today's P&L</div>
+                        <div class="pnl-value positive">+₹2,456 (+1.32%)</div>
+                    </div>
+                    <div class="pnl-item">
+                        <div class="pnl-label">Total P&L</div>
+                        <div class="pnl-value positive">+₹35,456 (+23.32%)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Allocation Card -->
+            <div class="card allocation-card">
+                <div class="card-header">
+                    <div class="card-title">Asset Allocation</div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">Rebalance</button>
+                    </div>
+                </div>
+                <div class="chart-container" id="allocationChart">
+                    <!-- Chart will be rendered here with JS -->
+                    <svg width="100%" height="100%" viewBox="0 0 100 100">
+                        <!-- Pie chart slices -->
+                        <path d="M50,50 L50,0 A50,50 0 0,1 86.6,25 Z" fill="#4f46e5" />
+                        <path d="M50,50 L86.6,25 A50,50 0 0,1 50,100 Z" fill="#10b981" />
+                        <path d="M50,50 L50,100 A50,50 0 0,1 0,50 Z" fill="#f59e0b" />
+                        <path d="M50,50 L0,50 A50,50 0 0,1 50,0 Z" fill="#ef4444" />
+                        <circle cx="50" cy="50" r="30" fill="white" />
+                    </svg>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #4f46e5;"></div>
+                        <div class="legend-label">Indian Stocks (45%)</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #10b981;"></div>
+                        <div class="legend-label">US Stocks (20%)</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #f59e0b;"></div>
+                        <div class="legend-label">Crypto (15%)</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #ef4444;"></div>
+                        <div class="legend-label">Bonds (20%)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Asset Tabs -->
+            <div class="card asset-tabs">
+                <div class="tabs-header">
+                    <div class="tab active">Indian Stocks</div>
+                    <div class="tab">US Stocks</div>
+                    <div class="tab">Crypto</div>
+                    <div class="tab">Bonds</div>
+                    <div class="tab">Forex</div>
+                </div>
+                <table class="asset-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Name</th>
+                            <th>Quantity</th>
+                            <th>Avg. Price</th>
+                            <th>LTP</th>
+                            <th>P&L</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>RELIANCE</td>
+                            <td>Reliance Industries</td>
+                            <td>5</td>
+                            <td>₹2,456</td>
+                            <td>₹2,789</td>
+                            <td class="positive">+₹1,665 (+13.56%)</td>
+                            <td>
+                                <button class="btn btn-buy" onclick="openOrderForm('RELIANCE', 'BUY')">Buy</button>
+                                <button class="btn btn-sell" onclick="openOrderForm('RELIANCE', 'SELL')">Sell</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>TCS</td>
+                            <td>Tata Consultancy</td>
+                            <td>10</td>
+                            <td>₹3,245</td>
+                            <td>₹3,789</td>
+                            <td class="positive">+₹5,440 (+16.76%)</td>
+                            <td>
+                                <button class="btn btn-buy" onclick="openOrderForm('TCS', 'BUY')">Buy</button>
+                                <button class="btn btn-sell" onclick="openOrderForm('TCS', 'SELL')">Sell</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>HDFCBANK</td>
+                            <td>HDFC Bank</td>
+                            <td>8</td>
+                            <td>₹1,456</td>
+                            <td>₹1,389</td>
+                            <td class="negative">-₹536 (-4.60%)</td>
+                            <td>
+                                <button class="btn btn-buy" onclick="openOrderForm('HDFCBANK', 'BUY')">Buy</button>
+                                <button class="btn btn-sell" onclick="openOrderForm('HDFCBANK', 'SELL')">Sell</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Form Modal -->
+    <div class="order-form-container" id="orderForm">
+        <div class="order-form">
+            <div class="form-header">
+                <div class="form-title" id="orderTitle">Buy RELIANCE</div>
+                <button class="close-btn" onclick="closeOrderForm()">&times;</button>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-buy" id="buyBtn" style="flex: 1;">Buy</button>
+                <button class="btn btn-sell" id="sellBtn" style="flex: 1;">Sell</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Order Type</label>
+                <select class="form-control" id="orderType">
+                    <option value="market">Market Order</option>
+                    <option value="limit">Limit Order</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Quantity</label>
+                <input type="number" class="form-control" id="quantity" placeholder="0">
+            </div>
+            <div class="form-group" id="priceGroup" style="display: none;">
+                <label class="form-label">Price (₹)</label>
+                <input type="number" class="form-control" id="price" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Stop Loss (optional)</label>
+                <input type="number" class="form-control" id="stopLoss" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Target (optional)</label>
+                <input type="number" class="form-control" id="target" placeholder="0.00">
+            </div>
+            <div class="order-summary">
+                <div class="summary-row">
+                    <span>Estimated Amount</span>
+                    <span>₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Brokerage</span>
+                    <span>₹20.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Taxes</span>
+                    <span>₹5.36</span>
+                </div>
+                <div class="summary-row" style="font-weight: 600;">
+                    <span>Total</span>
+                    <span>₹0.00</span>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 15px;">Place Order</button>
+        </div>
+    </div>
+
+    <script>
+        // Toggle tabs
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                // Here you would load the appropriate asset class data
+            });
+        });
+
+        // Order form functionality
+        let currentSymbol = '';
+        let currentAction = 'BUY';
+
+        function openOrderForm(symbol, action) {
+            currentSymbol = symbol;
+            currentAction = action;
+            
+            const form = document.getElementById('orderForm');
+            const title = document.getElementById('orderTitle');
+            const buyBtn = document.getElementById('buyBtn');
+            const sellBtn = document.getElementById('sellBtn');
+            
+            title.textContent = `${action} ${symbol}`;
+            
+            if (action === 'BUY') {
+                buyBtn.classList.add('btn-buy');
+                buyBtn.classList.remove('btn-outline');
+                sellBtn.classList.add('btn-outline');
+                sellBtn.classList.remove('btn-sell');
+            } else {
+                sellBtn.classList.add('btn-sell');
+                sellBtn.classList.remove('btn-outline');
+                buyBtn.classList.add('btn-outline');
+                buyBtn.classList.remove('btn-buy');
+            }
+            
+            form.style.display = 'flex';
+        }
+
+        function closeOrderForm() {
+            document.getElementById('orderForm').style.display = 'none';
+        }
+
+        // Toggle price field based on order type
+        const orderType = document.getElementById('orderType');
+        const priceGroup = document.getElementById('priceGroup');
+        
+        orderType.addEventListener('change', (e) => {
+            if (e.target.value === 'limit') {
+                priceGroup.style.display = 'block';
+            } else {
+                priceGroup.style.display = 'none';
+            }
+        });
+
+        // Buy/Sell toggle
+        document.getElementById('buyBtn').addEventListener('click', () => {
+            if (currentAction !== 'BUY') {
+                currentAction = 'BUY';
+                document.getElementById('orderTitle').textContent = `BUY ${currentSymbol}`;
+                const buyBtn = document.getElementById('buyBtn');
+                const sellBtn = document.getElementById('sellBtn');
+                buyBtn.classList.add('btn-buy');
+                buyBtn.classList.remove('btn-outline');
+                sellBtn.classList.add('btn-outline');
+                sellBtn.classList.remove('btn-sell');
+            }
+        });
+
+        document.getElementById('sellBtn').addEventListener('click', () => {
+            if (currentAction !== 'SELL') {
+                currentAction = 'SELL';
+                document.getElementById('orderTitle').textContent = `SELL ${currentSymbol}`;
+                const sellBtn = document.getElementById('sellBtn');
+                const buyBtn = document.getElementById('buyBtn');
+                sellBtn.classList.add('btn-sell');
+                sellBtn.classList.remove('btn-outline');
+                buyBtn.classList.add('btn-outline');
+                buyBtn.classList.remove('btn-buy');
+            }
+        });
+
+        // Calculate estimated amount
+        const quantityInput = document.getElementById('quantity');
+        const priceInput = document.getElementById('price');
+        
+        function calculateEstimate() {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            let price = 0;
+            
+            if (orderType.value === 'limit') {
+                price = parseFloat(priceInput.value) || 0;
+            } else {
+                // For market orders, we would fetch the current market price
+                price = 2789; // Example price for RELIANCE
+            }
+            
+            const amount = quantity * price;
+            const brokerage = Math.min(20, amount * 0.0003); // ₹20 or 0.03% whichever is lower
+            const taxes = amount * 0.0001; // Example tax calculation
+            
+            document.querySelector('.order-summary .summary-row:nth-child(1) span:last-child').textContent = `₹${amount.toFixed(2)}`;
+            document.querySelector('.order-summary .summary-row:nth-child(4) span:last-child').textContent = `₹${(amount + brokerage + taxes).toFixed(2)}`;
+        }
+        
+        quantityInput.addEventListener('input', calculateEstimate);
+        priceInput.addEventListener('input', calculateEstimate);
+        orderType.addEventListener('change', calculateEstimate);
+    </script>
+</body>
+</html>

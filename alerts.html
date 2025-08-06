@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SphereTrade - Price Alert</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f7fa;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .form input, .form select, .form button {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      flex: 1;
+    }
+
+    .form button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      flex: 0 0 150px;
+    }
+
+    .form button:hover {
+      background-color: #0056b3;
+    }
+
+    .alerts {
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
+    }
+
+    .alert {
+      padding: 15px;
+      margin-bottom: 15px;
+      border-left: 6px solid #007bff;
+      background: #f0f8ff;
+      border-radius: 5px;
+    }
+
+    .alert strong {
+      display: block;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .alert p {
+      margin: 5px 0;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .alert.breakout {
+      border-left-color: #28a745;
+    }
+
+    .alert.breakdown {
+      border-left-color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📈 SphereTrade - Price Alert Section</h2>
+
+    <div class="form">
+      <input type="text" id="instrument" placeholder="Search Instrument (e.g. BTC, AAPL)" />
+      <input type="number" id="price" placeholder="Enter Price" />
+      <select id="type">
+        <option value="breakout">Breakout (Price goes above)</option>
+        <option value="breakdown">Breakdown (Price goes below)</option>
+      </select>
+      <button onclick="addAlert()">Add Alert</button>
+    </div>
+
+    <div class="alerts" id="alertList">
+      <!-- Alerts will appear here -->
+    </div>
+  </div>
+
+  <script>
+    const alertList = document.getElementById("alertList");
+    const alerts = [];
+
+    function addAlert() {
+      const instrument = document.getElementById("instrument").value.trim().toUpperCase();
+      const price = parseFloat(document.getElementById("price").value);
+      const type = document.getElementById("type").value;
+
+      if (!instrument || isNaN(price)) {
+        alert("Please enter a valid instrument and price.");
+        return;
+      }
+
+      const alertObj = {
+        instrument,
+        price,
+        type,
+        id: Date.now()
+      };
+
+      alerts.push(alertObj);
+      renderAlerts();
+
+      // Reset form
+      document.getElementById("instrument").value = '';
+      document.getElementById("price").value = '';
+    }
+
+    function renderAlerts() {
+      alertList.innerHTML = '';
+      alerts.forEach(alert => {
+        const div = document.createElement("div");
+        div.className = `alert ${alert.type}`;
+        div.innerHTML = `
+          <strong>${alert.instrument}</strong>
+          <p>Alert: ${alert.type === 'breakout' ? 'Breakout above' : 'Breakdown below'} ₹${alert.price}</p>
+          <p>Trigger: ${alert.type === 'breakout' ? `If price ≥ ₹${alert.price}` : `If price ≤ ₹${alert.price}`}</p>
+        `;
+        alertList.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>

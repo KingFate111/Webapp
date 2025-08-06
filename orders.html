@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SphereTrade - Orders</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+  font-family: Arial, sans-serif;
+  background: #f5f7fa;
+  margin: 0;
+  padding: 20px;
+}
+
+.orders-section {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  max-width: 900px;
+  margin: auto;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filters input,
+.filters select {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 200px;
+}
+
+.order {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  padding: 12px 8px;
+  border-bottom: 1px solid #e0e0e0;
+  align-items: center;
+  font-size: 14px;
+}
+
+.order-header {
+  font-weight: bold;
+  background-color: #e9eff5;
+}
+
+.status-completed {
+  color: green;
+  font-weight: bold;
+}
+
+.status-pending {
+  color: orange;
+  font-weight: bold;
+}
+
+@media (max-width: 700px) {
+  .order {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .order > div:nth-child(n+3) {
+    display: none;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <section class="orders-section">
+    <h2>📋 SphereTrade Orders</h2>
+    
+    <div class="filters">
+      <input type="text" id="searchInput" placeholder="Search Asset..." />
+      <select id="filterType">
+        <option value="">All Types</option>
+        <option value="Buy">Buy</option>
+        <option value="Sell">Sell</option>
+      </select>
+    </div>
+
+    <div class="orders-table" id="ordersContainer">
+      <!-- Orders will be injected here -->
+    </div>
+  </section>
+
+  <script >
+    const orders = [
+  {
+    id: 'ORD001',
+    asset: 'BTC',
+    type: 'Buy',
+    amount: '0.5',
+    status: 'Completed',
+    time: '2025-08-03 12:00'
+  },
+  {
+    id: 'ORD002',
+    asset: 'ETH',
+    type: 'Sell',
+    amount: '2',
+    status: 'Pending',
+    time: '2025-08-04 09:45'
+  },
+  {
+    id: 'ORD003',
+    asset: 'ADA',
+    type: 'Buy',
+    amount: '1000',
+    status: 'Completed',
+    time: '2025-08-04 10:30'
+  }
+];
+
+const container = document.getElementById("ordersContainer");
+
+function renderOrders(filteredOrders) {
+  container.innerHTML = `
+    <div class="order order-header">
+      <div>Order ID</div>
+      <div>Asset</div>
+      <div>Type</div>
+      <div>Amount</div>
+      <div>Status</div>
+      <div>Time</div>
+    </div>
+  `;
+
+  filteredOrders.forEach(order => {
+    container.innerHTML += `
+      <div class="order">
+        <div>${order.id}</div>
+        <div>${order.asset}</div>
+        <div>${order.type}</div>
+        <div>${order.amount}</div>
+        <div class="status-${order.status.toLowerCase()}">${order.status}</div>
+        <div>${order.time}</div>
+      </div>
+    `;
+  });
+}
+
+// Initial load
+renderOrders(orders);
+
+// Filter logic
+document.getElementById("searchInput").addEventListener("input", function (e) {
+  const search = e.target.value.toLowerCase();
+  const type = document.getElementById("filterType").value;
+
+  const filtered = orders.filter(order =>
+    order.asset.toLowerCase().includes(search) &&
+    (type === "" || order.type === type)
+  );
+
+  renderOrders(filtered);
+});
+
+document.getElementById("filterType").addEventListener("change", function () {
+  document.getElementById("searchInput").dispatchEvent(new Event('input'));
+});
+
+  </script>
+</body>
+</html>

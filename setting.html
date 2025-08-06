@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SphereTrade - Settings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      background: white;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .checkbox-group label {
+      font-weight: normal;
+    }
+
+    .checkbox-group input {
+      width: auto;
+      margin-right: 6px;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>⚙️ Settings</h2>
+
+    <div class="form-group">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" placeholder="Enter your name" />
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" placeholder="Enter your email" />
+    </div>
+
+    <div class="form-group">
+      <label>Notification Preferences</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" id="emailNotif"> Email Alerts</label>
+        <label><input type="checkbox" id="smsNotif"> SMS Alerts</label>
+        <label><input type="checkbox" id="pushNotif"> Push Notifications</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="theme">Theme</label>
+      <select id="theme">
+        <option value="light">☀️ Light</option>
+        <option value="dark">🌙 Dark</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="defaultAsset">Default Asset View</label>
+      <select id="defaultAsset">
+        <option value="equity">Equity</option>
+        <option value="crypto">Crypto</option>
+        <option value="commodities">Commodities</option>
+        <option value="forex">Forex</option>
+        <option value="mutual">Mutual Funds</option>
+      </select>
+    </div>
+
+    <button onclick="saveSettings()">💾 Save Changes</button>
+
+    <div class="footer">SphereTrade © 2025</div>
+  </div>
+
+  <script>
+    function saveSettings() {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const emailNotif = document.getElementById('emailNotif').checked;
+      const smsNotif = document.getElementById('smsNotif').checked;
+      const pushNotif = document.getElementById('pushNotif').checked;
+      const theme = document.getElementById('theme').value;
+      const defaultAsset = document.getElementById('defaultAsset').value;
+
+      // Placeholder for saving logic
+      alert(`✅ Settings Saved!\n\nName: ${name}\nEmail: ${email}\nNotifications: ${
+        [emailNotif ? 'Email' : '', smsNotif ? 'SMS' : '', pushNotif ? 'Push' : ''].filter(Boolean).join(', ')
+      }\nTheme: ${theme}\nDefault View: ${defaultAsset}`);
+    }
+  </script>
+
+</body>
+</html>

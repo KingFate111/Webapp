@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniBroker - Multi-Asset Investment Platform</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --dark-color: #1a1a1a;
+            --light-color: #f8f9fa;
+            --border-color: #e1e5e9;
+            --text-color: #333;
+            --text-muted: #6c757d;
+        }
+
+        [data-theme="dark"] {
+            --light-color: #1a1a1a;
+            --text-color: #ffffff;
+            --text-muted: #b0b0b0;
+            --border-color: #333;
+            --dark-color: #000000;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--light-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-container {
+            max-width: 430px;
+            margin: 0 auto;
+            background: var(--light-color);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Authentication & Onboarding */
+        .auth-screen {
+            padding: 40px 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .auth-screen.active {
+            display: block;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+        }
+
+        .auth-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .auth-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--light-color);
+            color: var(--text-color);
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .biometric-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #f8f9fa;
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+        }
+
+        .language-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        /* Main App */
+        .app-screen {
+            display: none;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .app-screen.active {
+            display: block;
+        }
+
+        .top-bar {
+            background: var(--light-color);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .net-worth-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .net-worth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        .net-worth-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .net-worth-change {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--light-color);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .asset-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .asset-tab {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--light-color);
+        }
+
+        .asset-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .asset-tab-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .asset-tab-label {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .allocation-chart {
+            background: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 200px;
+        }
+
+        .watchlist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: var(--light-color);
+        }
+
+        .stock-info h4 {
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+
+        .stock-info span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .stock-price {
+            text-align: right;
+        }
+
+        .price {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .change {
+            font-size: 12px;
+        }
+
+        .positive {
+            color: var(--secondary-color);
+        }
+
+        .negative {
+            color: var(--danger-color);
+        }
+
+        /* Trading Interface */
+        .trading-form {
+            background: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .order-type-toggle {
+            display: flex;
+            background: #f1f3f4;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .order-type-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .order-type-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .buy-sell-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .buy-btn {
+            flex: 1;
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .sell-btn {
+            flex: 1;
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .charges-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .charges-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            background: var(--light-color);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-size: 10px;
+        }
+
+        /* Portfolio */
+        .portfolio-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .portfolio-card {
+            background: var(--light-color);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .holding-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: var(--light-color);
+        }
+
+        .holding-details h4 {
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+
+        .holding-quantity {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .holding-value {
+            text-align: right;
+        }
+
+        /* Orders */
+        .order-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background: var(--light-color);
+            color: var(--text-color);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .order-item {
+            background: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .order-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-executed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Funds */
+        .wallet-balance {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .balance-amount {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .fund-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .fund-btn {
+            padding: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--light-color);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .fund-btn:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .fund-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        /* Settings */
+        .settings-section {
+            margin-bottom: 30px;
+        }
+
+        .settings-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: var(--light-color);
+        }
+
+        .toggle-switch {
+            width: 50px;
+            height: 26px;
+            background: #ccc;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary-color);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+
+        /* Market Screener */
+        .market-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .market-tab {
+            padding: 10px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background: var(--light-color);
+            color: var(--text-color);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .market-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .search-bar {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 45px 15px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--light-color);
+            color: var(--text-color);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .mobile-container {
+                max-width: 100%;
+            }
+        }
+
+        /* Risk Alert Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--light-color);
+            margin: 20px;
+            padding: 25px;
+            border-radius: 16px;
+            max-width: 350px;
+            text-align: center;
+        }
+
+        .risk-icon {
+            font-size: 48px;
+            color: var(--warning-color);
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .modal-text {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-modal {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-continue {
+            background: var(--warning-color);
+            color: #333;
+        }
+
+        .btn-cancel {
+            background: var(--border-color);
+            color: var(--text-color);
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Notification Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 3000;
+            display: none;
+        }
+
+        .toast.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100%); }
+            to { transform: translateX(-50%) translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Language Toggle -->
+        <button class="language-toggle" onclick="toggleLanguage()">
+            <span id="langToggle">हिं</span>
+        </button>
+
+        <!-- Authentication Screen -->
+        <div id="loginScreen" class="auth-screen active">
+            <div class="logo">₹</div>
+            <h1 class="auth-title" data-en="Welcome to UniBroker" data-hi="यूनीब्रोकर में आपका स्वागत है">Welcome to UniBroker</h1>
+            <p class="auth-subtitle" data-en="Multi-Asset Investment Platform" data-hi="मल्टी-एसेट निवेश प्लेटफॉर्म">Multi-Asset Investment Platform</p>
+            
+            <div class="form-group">
+                <label data-en="Mobile Number" data-hi="मोबाइल नंबर">Mobile Number</label>
+                <input type="tel" class="form-control" placeholder="+91 9876543210" id="mobileInput">
+            </div>
+            
+            <button class="btn btn-primary" onclick="sendOTP()" data-en="Send OTP" data-hi="OTP भेजें">Send OTP</button>
+            
+            <button class="btn biometric-btn" onclick="biometricLogin()">
+                <span>👆</span>
+                <span data-en="Use Biometric" data-hi="बायोमेट्रिक का उपयोग करें">Use Biometric</span>
+            </button>
+        </div>
+
+        <!-- OTP Verification Screen -->
+        <div id="otpScreen" class="auth-screen">
+            <div class="logo">🔐</div>
+            <h1 class="auth-title" data-en="Enter OTP" data-hi="OTP डालें">Enter OTP</h1>
+            <p class="auth-subtitle" data-en="We've sent a 6-digit code to your mobile" data-hi="हमने आपके मोबाइल पर 6 अंकों का कोड भेजा है">We've sent a 6-digit code to your mobile</p>
+            
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Enter 6-digit OTP" maxlength="6" id="otpInput">
+            </div>
+            
+            <button class="btn btn-primary" onclick="verifyOTP()" data-en="Verify OTP" data-hi="OTP सत्यापित करें">Verify OTP</button>
+            <button class="btn btn-outline" onclick="resendOTP()" data-en="Resend OTP" data-hi="OTP पुनः भेजें">Resend OTP</button>
+        </div>
+
+        <!-- KYC Screen -->
+        <div id="kycScreen" class="auth-screen">
+            <div class="logo">📋</div>
+            <h1 class="auth-title" data-en="Complete KYC" data-hi="KYC पूरा करें">Complete KYC</h1>
+            <p class="auth-subtitle" data-en="Help us verify your identity" data-hi="अपनी पहचान सत्यापित करने में हमारी मदद करें">Help us verify your identity</p>
+            
+            <div class="form-group">
+                <label data-en="PAN Number" data-hi="PAN नंबर">PAN Number</label>
+                <input type="text" class="form-control" placeholder="ABCDE1234F" id="panInput">
+            </div>
+            
+            <div class="form-group">
+                <label data-en="Aadhaar Number" data-hi="आधार नंबर">Aadhaar Number</label>
+                <input type="text" class="form-control" placeholder="1234 5678 9012" id="aadhaarInput">
+            </div>
+            
+            <div class="form-group">
+                <label data-en="Full Name" data-hi="पूरा नाम">Full Name</label>
+                <input type="text" class="form-control" placeholder="As per PAN Card" id="nameInput">
+            </div>
+            
+            <button class="btn btn-primary" onclick="completeKYC()" data-en="Complete KYC" data-hi="KYC पूरा करें">Complete KYC</button>
+        </div>
+
+        <!-- Main App Screen -->
+        <div id="mainApp" class="app-screen">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div>
+                    <div class="greeting" data-en="Good Morning, Rahul" data-hi="सुप्रभात, राहुल">Good Morning, Rahul</div>
+                </div>
+                <div class="user-avatar">R</div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div id="dashboardContent" class="content">
+                <!-- Net Worth Card -->
+                <div class="net-worth-card">
+                    <div class="net-worth-value">₹12,45,680</div>
+                    <div class="net-worth-change">+₹23,450 (+1.92%) Today</div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-value positive">+15.6%</div>
+                        <div class="stat-label" data-en="Total Returns" data-hi="कुल रिटर्न">Total Returns</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">₹45,230</div>
+                        <div class="stat-label" data-en="Available Cash" data-hi="उपलब्ध नकदी">Available Cash</div>
+                    </div>
+                </div>
+
+                <!-- Asset Class Tabs -->
+                <div class="asset-tabs">
+                    <div class="asset-tab active" onclick="switchAssetTab('stocks')">
+                        <div class="asset-tab-icon">📈</div>
+                        <div class="asset-tab-label" data-en="Stocks" data-hi="शेयर">Stocks</div>
+                    </div>
+                    <div class="asset-tab" onclick="switchAssetTab('us-stocks')">
+                        <div class="asset-tab-icon">🇺🇸</div>
+                        <div class="asset-tab-label" data-en="US Stocks" data-hi="US शेयर">US Stocks</div>
+                    </div>
+                    <div class="asset-tab" onclick="switchAssetTab('crypto')">
+                        <div class="asset-tab-icon">🪙</div>
+                        <div class="asset-tab-label" data-en="Crypto" data-hi="क्रिप्टो">Crypto</div>
+                    </div>
+                    <div class="asset-tab" onclick="switchAssetTab('forex')">
+                        <div class="asset-tab-icon">💱</div>
+                        <div class="asset-tab-label" data-en="Forex" data-hi="फॉरेक्स">Forex</div>
+                    </div>
+                    <div class="asset-tab" onclick="switchAssetTab('bonds')">
+                        <div class="asset-tab-icon">🧾</div>
+                        <div class="asset-tab-label" data-en="Bonds" data-hi="बॉन्ड">Bonds</div>
+                    </div>
+                    <div class="asset-tab" onclick="switchAssetTab('gold')">
+                        <div class="asset-tab-icon">🥇</div>
+                        <div class="asset-tab-label" data-en="Gold" data-hi="सोना">Gold</div>
+                    </div>
+                </div>
+
+                <!-- Asset Allocation Chart -->
+                <div class="allocation-chart">
+                    <h3 data-en="Asset Allocation" data-hi="एसेट एलोकेशन">Asset Allocation</h3>
+                    <div class="chart-container">
+                        <canvas id="allocationChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top Holdings/Watchlist -->
+                <div id="assetContent">
+                    <h3 data-en="Your Holdings" data-hi="आपकी होल्डिंग्स">Your Holdings</h3>
+                    <div class="watchlist-item">
+                        <div class="stock-info">
+                            <h4>RELIANCE</h4>
+                            <span>50 shares</span>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price">₹2,445</div>
+                            <div class="change positive">+2.5%</div>
+                        </div>
+                    </div>
+                    <div class="watchlist-item">
+                        <div class="stock-info">
+                            <h4>TCS</h4>
+                            <span>25 shares</span>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price">₹3,890</div>
+                            <div class="change negative">-1.2%</div>
+                        </div>
+                    </div>
+                    <div class="watchlist-item">
+                        <div class="stock-info">
+                            <h4>HDFC BANK</h4>
+                            <span>75 shares</span>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price">₹1,675</div>
+                            <div class="change positive">+0.8%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Screen -->
+            <div id="marketContent" class="content" style="display: none;">
+                <div class="search-bar">
+                    <input type="text" class="search-input" placeholder="Search stocks, crypto, forex..." id="searchInput">
+                    <span class="search-icon">🔍</span>
+                </div>
+
+                <div class="market-tabs">
+                    <div class="market-tab active" onclick="switchMarketTab('trending')">
+                        <span data-en="Trending" data-hi="ट्रेंडिंग">Trending</span>
+                    </div>
+                    <div class="market-tab" onclick="switchMarketTab('gainers')">
+                        <span data-en="Top Gainers" data-hi="टॉप गेनर">Top Gainers</span>
+                    </div>
+                    <div class="market-tab" onclick="switchMarketTab('losers')">
+                        <span data-en="Top Losers" data-hi="टॉप लूज़र">Top Losers</span>
+                    </div>
+                    <div class="market-tab" onclick="switchMarketTab('volume')">
+                        <span data-en="High Volume" data-hi="हाई वॉल्यूम">High Volume</span>
+                    </div>
+                </div>
+
+                <div id="marketData">
+                    <div class="watchlist-item" onclick="openTradingModal('RELIANCE')">
+                        <div class="stock-info">
+                            <h4>RELIANCE</h4>
+                            <span>Reliance Industries</span>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price">₹2,445.50</div>
+                            <div class="change positive">+₹58.20 (+2.4%)</div>
+                        </div>
+                    </div>
+                    <div class="watchlist-item" onclick="openTradingModal('TCS')">
+                        <div class="stock-info">
+                            <h4>TCS</h4>
+                            <span>Tata Consultancy Services</span>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price">₹3,890.75</div>
+                            <div class="change negative">-₹45.25 (-1.1%)</div>
+                        </div>
+                    </div>
+                    <div class="watchlist-item" onclick="openTradingModal('INFY')">
+                        <div class="stock-info">
+                            <h4>INFY</h4>
+                            <span>Infosys Limited</span>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price">₹1,456.30</div>
+                            <div class="change positive">+₹23.40 (+1.6%)</div>
+                        </div>
+                    </div>
+                    <div class="watchlist-item" onclick="openTradingModal('HDFCBANK')">
+                        <div class="stock-info">
+                            <h4>HDFC BANK</h4>
+                            <span>HDFC Bank Limited</span>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price">₹1,675.80</div>
+                            <div class="change positive">+₹12.30 (+0.7%)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Screen -->
+            <div id="portfolioContent" class="content" style="display: none;">
+                <div class="portfolio-summary">
+                    <div class="portfolio-card">
+                        <div class="stat-value">₹10,45,680</div>
+                        <div class="stat-label" data-en="Invested Amount" data-hi="निवेशित राशि">Invested Amount</div>
+                    </div>
+                    <div class="portfolio-card">
+                        <div class="stat-value positive">₹2,00,000</div>
+                        <div class="stat-label" data-en="Total Gains" data-hi="कुल लाभ">Total Gains</div>
+                    </div>
+                    <div class="portfolio-card">
+                        <div class="stat-value">₹1,25,450</div>
+                        <div class="stat-label" data-en="Unrealized P&L" data-hi="अनरियलाइज़्ड P&L">Unrealized P&L</div>
+                    </div>
+                    <div class="portfolio-card">
+                        <div class="stat-value">15.6%</div>
+                        <div class="stat-label" data-en="Overall XIRR" data-hi="ओवरऑल XIRR">Overall XIRR</div>
+                    </div>
+                </div>
+
+                <h3 data-en="Holdings Breakdown" data-hi="होल्डिंग्स ब्रेकडाउन">Holdings Breakdown</h3>
+                
+                <div class="holding-item">
+                    <div class="holding-details">
+                        <h4>Indian Stocks (65%)</h4>
+                        <div class="holding-quantity">₹8,09,692 invested</div>
+                    </div>
+                    <div class="holding-value">
+                        <div class="price">₹9,45,230</div>
+                        <div class="change positive">+₹1,35,538 (+16.8%)</div>
+                    </div>
+                </div>
+
+                <div class="holding-item">
+                    <div class="holding-details">
+                        <h4>US Stocks (15%)</h4>
+                        <div class="holding-quantity">₹1,86,852 invested</div>
+                    </div>
+                    <div class="holding-value">
+                        <div class="price">₹2,14,320</div>
+                        <div class="change positive">+₹27,468 (+14.7%)</div>
+                    </div>
+                </div>
+
+                <div class="holding-item">
+                    <div class="holding-details">
+                        <h4>Crypto (10%)</h4>
+                        <div class="holding-quantity">₹1,24,568 invested</div>
+                    </div>
+                    <div class="holding-value">
+                        <div class="price">₹1,56,780</div>
+                        <div class="change positive">+₹32,212 (+25.9%)</div>
+                    </div>
+                </div>
+
+                <div class="holding-item">
+                    <div class="holding-details">
+                        <h4>Bonds (8%)</h4>
+                        <div class="holding-quantity">₹99,680 invested</div>
+                    </div>
+                    <div class="holding-value">
+                        <div class="price">₹1,05,240</div>
+                        <div class="change positive">+₹5,560 (+5.6%)</div>
+                    </div>
+                </div>
+
+                <div class="holding-item">
+                    <div class="holding-details">
+                        <h4>Gold (2%)</h4>
+                        <div class="holding-quantity">₹24,882 invested</div>
+                    </div>
+                    <div class="holding-value">
+                        <div class="price">₹26,110</div>
+                        <div class="change positive">+₹1,228 (+4.9%)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Screen -->
+            <div id="ordersContent" class="content" style="display: none;">
+                <div class="order-filters">
+                    <div class="filter-btn active" onclick="filterOrders('all')">
+                        <span data-en="All" data-hi="सभी">All</span>
+                    </div>
+                    <div class="filter-btn" onclick="filterOrders('pending')">
+                        <span data-en="Pending" data-hi="पेंडिंग">Pending</span>
+                    </div>
+                    <div class="filter-btn" onclick="filterOrders('executed')">
+                        <span data-en="Executed" data-hi="निष्पादित">Executed</span>
+                    </div>
+                    <div class="filter-btn" onclick="filterOrders('cancelled')">
+                        <span data-en="Cancelled" data-hi="रद्द">Cancelled</span>
+                    </div>
+                </div>
+
+                <div id="ordersList">
+                    <div class="order-item" data-status="executed">
+                        <div class="order-header">
+                            <h4>RELIANCE</h4>
+                            <span class="order-status status-executed">Executed</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; color: var(--text-muted);">
+                            <span>BUY • 10 shares</span>
+                            <span>₹2,440.50</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-top: 5px;">
+                            <span>Today, 10:32 AM</span>
+                            <span>Market Order</span>
+                        </div>
+                    </div>
+
+                    <div class="order-item" data-status="pending">
+                        <div class="order-header">
+                            <h4>TCS</h4>
+                            <span class="order-status status-pending">Pending</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; color: var(--text-muted);">
+                            <span>SELL • 5 shares</span>
+                            <span>₹3,950.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-top: 5px;">
+                            <span>Today, 9:45 AM</span>
+                            <span>Limit Order</span>
+                        </div>
+                    </div>
+
+                    <div class="order-item" data-status="executed">
+                        <div class="order-header">
+                            <h4>BITCOIN</h4>
+                            <span class="order-status status-executed">Executed</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; color: var(--text-muted);">
+                            <span>BUY • 0.05 BTC</span>
+                            <span>₹21,45,320</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-top: 5px;">
+                            <span>Yesterday, 2:15 PM</span>
+                            <span>Market Order</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Funds Screen -->
+            <div id="fundsContent" class="content" style="display: none;">
+                <div class="wallet-balance">
+                    <div class="balance-amount">₹45,230.50</div>
+                    <div data-en="Available Balance" data-hi="उपलब्ध बैलेंस">Available Balance</div>
+                </div>
+
+                <div class="fund-actions">
+                    <div class="fund-btn" onclick="addFunds()">
+                        <div class="fund-icon">➕</div>
+                        <div data-en="Add Funds" data-hi="फंड जोड़ें">Add Funds</div>
+                    </div>
+                    <div class="fund-btn" onclick="withdrawFunds()">
+                        <div class="fund-icon">➖</div>
+                        <div data-en="Withdraw" data-hi="निकासी">Withdraw</div>
+                    </div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-value">$2,456</div>
+                        <div class="stat-label">USD Wallet</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">0.12 BTC</div>
+                        <div class="stat-label">Crypto Wallet</div>
+                    </div>
+                </div>
+
+                <h3 data-en="Recent Transactions" data-hi="हाल की लेनदेन">Recent Transactions</h3>
+                
+                <div class="order-item">
+                    <div class="order-header">
+                        <h4 data-en="Funds Added" data-hi="फंड जोड़े गए">Funds Added</h4>
+                        <span class="positive">+₹50,000</span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted);">
+                        Today, 11:30 AM • UPI Transfer
+                    </div>
+                </div>
+
+                <div class="order-item">
+                    <div class="order-header">
+                        <h4>Stock Purchase - RELIANCE</h4>
+                        <span class="negative">-₹24,405</span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted);">
+                        Today, 10:32 AM • 10 shares @ ₹2,440.50
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Screen -->
+            <div id="profileContent" class="content" style="display: none;">
+                <div class="settings-section">
+                    <div class="settings-title" data-en="Account Settings" data-hi="खाता सेटिंग्स">Account Settings</div>
+                    
+                    <div class="settings-item">
+                        <div>
+                            <h4 data-en="Dark Mode" data-hi="डार्क मोड">Dark Mode</h4>
+                            <p style="font-size: 12px; color: var(--text-muted);" data-en="Switch to dark theme" data-hi="डार्क थीम पर स्विच करें">Switch to dark theme</p>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleDarkMode()"></div>
+                    </div>
+
+                    <div class="settings-item">
+                        <div>
+                            <h4 data-en="Price Alerts" data-hi="मूल्य अलर्ट">Price Alerts</h4>
+                            <p style="font-size: 12px; color: var(--text-muted);" data-en="Get notified of price changes" data-hi="मूल्य परिवर्तन की सूचना पाएं">Get notified of price changes</p>
+                        </div>
+                        <div class="toggle-switch active"></div>
+                    </div>
+
+                    <div class="settings-item">
+                        <div>
+                            <h4 data-en="Biometric Login" data-hi="बायोमेट्रिक लॉगिन">Biometric Login</h4>
+                            <p style="font-size: 12px; color: var(--text-muted);" data-en="Use fingerprint or face ID" data-hi="फिंगरप्रिंट या फेस ID का उपयोग करें">Use fingerprint or face ID</p>
+                        </div>
+                        <div class="toggle-switch active"></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-title" data-en="Documents & Reports" data-hi="दस्तावेज़ और रिपोर्ट">Documents & Reports</div>
+                    
+                    <div class="settings-item" onclick="downloadTaxReport()">
+                        <div>
+                            <h4 data-en="Tax Report (FY 2024-25)" data-hi="कर रिपोर्ट (वित्त वर्ष 2024-25)">Tax Report (FY 2024-25)</h4>
+                            <p style="font-size: 12px; color: var(--text-muted);" data-en="Download your capital gains report" data-hi="अपनी कैपिटल गेन्स रिपोर्ट डाउनलोड करें">Download your capital gains report</p>
+                        </div>
+                        <div>📄</div>
+                    </div>
+
+                    <div class="settings-item">
+                        <div>
+                            <h4 data-en="Bank Account Details" data-hi="बैंक खाता विवरण">Bank Account Details</h4>
+                            <p style="font-size: 12px; color: var(--text-muted);">HDFC Bank •••• 4567</p>
+                        </div>
+                        <div>✏️</div>
+                    </div>
+
+                    <div class="settings-item">
+                        <div>
+                            <h4 data-en="Nominee Details" data-hi="नॉमिनी विवरण">Nominee Details</div>
+                            <p style="font-size: 12px; color: var(--text-muted);" data-en="Manage your nominees" data-hi="अपने नॉमिनी का प्रबंधन करें">Manage your nominees</p>
+                        </div>
+                        <div>👥</div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-title" data-en="Support" data-hi="सहायता">Support</div>
+                    
+                    <div class="settings-item">
+                        <div>
+                            <h4 data-en="Help Center" data-hi="सहायता केंद्र">Help Center</h4>
+                        </div>
+                        <div>❓</div>
+                    </div>
+
+                    <div class="settings-item">
+                        <div>
+                            <h4 data-en="Contact Us" data-hi="संपर्क करें">Contact Us</h4>
+                        </div>
+                        <div>📞</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trading Modal -->
+        <div id="tradingModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeTradingModal()">&times;</span>
+                <h3 id="tradingSymbol">RELIANCE</h3>
+                <p id="tradingPrice">₹2,445.50 <span class="positive">+2.4%</span></p>
+                
+                <div class="trading-form">
+                    <div class="order-type-toggle">
+                        <button class="order-type-btn active" onclick="setOrderType('market')">Market</button>
+                        <button class="order-type-btn" onclick="setOrderType('limit')">Limit</button>
+                    </div>
+
+                    <div class="buy-sell-toggle">
+                        <button class="btn buy-btn" onclick="setOrderSide('buy')">BUY</button>
+                        <button class="btn sell-btn" onclick="setOrderSide('sell')">SELL</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-en="Quantity" data-hi="मात्रा">Quantity</label>
+                        <input type="number" class="form-control" placeholder="1" id="quantityInput" oninput="calculateTotal()">
+                    </div>
+
+                    <div class="form-group" id="limitPriceGroup" style="display: none;">
+                        <label data-en="Limit Price" data-hi="लिमिट प्राइस">Limit Price</label>
+                        <input type="number" class="form-control" placeholder="2445.50" id="limitPriceInput" oninput="calculateTotal()">
+                    </div>
+
+                    <div class="charges-info">
+                        <div class="charges-row">
+                            <span data-en="Total Amount" data-hi="कुल राशि">Total Amount</span>
+                            <span id="totalAmount">₹0</span>
+                        </div>
+                        <div class="charges-row">
+                            <span data-en="Brokerage" data-hi="ब्रोकरेज">Brokerage</span>
+                            <span id="brokerage">₹0</span>
+                        </div>
+                        <div class="charges-row">
+                            <span data-en="Total Charges" data-hi="कुल शुल्क">Total Charges</span>
+                            <span id="totalCharges">₹0</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="placeOrder()" data-en="Place Order" data-hi="ऑर्डर दें">Place Order</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Alert Modal -->
+        <div id="riskModal" class="modal">
+            <div class="modal-content">
+                <div class="risk-icon">⚠️</div>
+                <div class="modal-title" data-en="High Risk Investment" data-hi="उच्च जोखिम निवेश">High Risk Investment</div>
+                <div class="modal-text" data-en="You are investing over 25% of your portfolio in crypto. This is considered high risk." data-hi="आप अपने पोर्टफोलियो का 25% से अधिक क्रिप्टो में निवेश कर रहे हैं। यह उच्च जोखिम माना जाता है।">You are investing over 25% of your portfolio in crypto. This is considered high risk.</div>
+                <div class="modal-actions">
+                    <button class="btn-modal btn-cancel" onclick="closeRiskModal()" data-en="Reconsider" data-hi="पुनर्विचार">Reconsider</button>
+                    <button class="btn-modal btn-continue" onclick="proceedWithRisk()" data-en="Continue" data-hi="जारी रखें">Continue</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast">
+            <span id="toastMessage">Order placed successfully!</span>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('dashboard')">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-label" data-en="Home" data-hi="होम">Home</div>
+            </div>
+            <div class="nav-item" onclick="switchTab('market')">
+                <div class="nav-icon">📊</div>
+                <div class="nav-label" data-en="Market" data-hi="बाज़ार">Market</div>
+            </div>
+            <div class="nav-item" onclick="switchTab('portfolio')">
+                <div class="nav-icon">💼</div>
+                <div class="nav-label" data-en="Portfolio" data-hi="पोर्टफोलियो">Portfolio</div>
+            </div>
+            <div class="nav-item" onclick="switchTab('orders')">
+                <div class="nav-icon">📋</div>
+                <div class="nav-label" data-en="Orders" data-hi="ऑर्डर">Orders</div>
+            </div>
+            <div class="nav-item" onclick="switchTab('funds')">
+                <div class="nav-icon">💰</div>
+                <div class="nav-label" data-en="Funds" data-hi="फंड">Funds</div>
+            </div>
+            <div class="nav-item" onclick="switchTab('profile')">
+                <div class="nav-icon">👤</div>
+                <div class="nav-label" data-en="Profile" data-hi="प्रोफाइल">Profile</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLanguage = 'en';
+        let currentOrderType = 'market';
+        let currentOrderSide = 'buy';
+        let currentSymbol = '';
+        let isDarkMode = false;
+
+        // Authentication Functions
+        function sendOTP() {
+            const mobile = document.getElementById('mobileInput').value;
+            if (mobile.length < 10) {
+                showToast('Please enter a valid mobile number');
+                return;
+            }
+            
+            showToast('OTP sent successfully!');
+            showScreen('otpScreen');
+        }
+
+        function verifyOTP() {
+            const otp = document.getElementById('otpInput').value;
+            if (otp.length !== 6) {
+                showToast('Please enter 6-digit OTP');
+                return;
+            }
+            
+            showToast('OTP verified successfully!');
+            showScreen('kycScreen');
+        }
+
+        function resendOTP() {
+            showToast('OTP resent successfully!');
+        }
+
+        function biometricLogin() {
+            showToast('Biometric authentication successful!');
+            showScreen('mainApp');
+            initializeCharts();
+        }
+
+        function completeKYC() {
+            const pan = document.getElementById('panInput').value;
+            const aadhaar = document.getElementById('aadhaarInput').value;
+            const name = document.getElementById('nameInput').value;
+            
+            if (!pan || !aadhaar || !name) {
+                showToast('Please fill all required fields');
+                return;
+            }
+            
+            showToast('KYC completed successfully!');
+            showScreen('mainApp');
+            initializeCharts();
+        }
+
+        // Screen Management
+        function showScreen(screenId) {
+            document.querySelectorAll('.auth-screen, .app-screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Language Toggle
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'hi' : 'en';
+            document.getElementById('langToggle').textContent = currentLanguage === 'en' ? 'हिं' : 'EN';
+            
+            document.querySelectorAll('[data-en]').forEach(element => {
+                const text = element.getAttribute(`data-${currentLanguage}`);
+                if (text) element.textContent = text;
+            });
+        }
+
+        // Theme Toggle
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+            
+            const toggle = event.target;
+            toggle.classList.toggle('active');
+        }
+
+        // Navigation
+        function switchTab(tabName) {
+            // Update bottom nav
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Show corresponding content
+            document.querySelectorAll('[id$="Content"]').forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(tabName + 'Content').style.display = 'block';
+        }
+
+        // Asset Tab Management
+        function switchAssetTab(assetType) {
+            document.querySelectorAll('.asset-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Update asset content based on type
+            updateAssetContent(assetType);
+        }
+
+        function updateAssetContent(assetType) {
+            const assetContent = document.getElementById('assetContent');
+            let content = '';
+            
+            switch(assetType) {
+                case 'stocks':
+                    content = `
+                        <h3>Your Holdings</h3>
+                        <div class="watchlist-item">
+                            <div class="stock-info">
+                                <h4>RELIANCE</h4>
+                                <span>50 shares</span>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">₹2,445</div>
+                                <div class="change positive">+2.5%</div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'us-stocks':
+                    content = `
+                        <h3>US Holdings</h3>
+                        <div class="watchlist-item">
+                            <div class="stock-info">
+                                <h4>AAPL</h4>
+                                <span>2.5 shares</span>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">$189.50</div>
+                                <div class="change positive">+1.8%</div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'crypto':
+                    content = `
+                        <h3>Crypto Holdings</h3>
+                        <div class="watchlist-item">
+                            <div class="stock-info">
+                                <h4>BITCOIN</h4>
+                                <span>0.05 BTC</span>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">₹21,45,320</div>
+                                <div class="change positive">+5.2%</div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'forex':
+                    content = `
+                        <h3>Forex Holdings</h3>
+                        <div class="watchlist-item">
+                            <div class="stock-info">
+                                <h4>USD/INR</h4>
+                                <span>$2,456 equivalent</span>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">₹83.45</div>
+                                <div class="change negative">-0.3%</div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'bonds':
+                    content = `
+                        <h3>Bond Holdings</h3>
+                        <div class="watchlist-item">
+                            <div class="stock-info">
+                                <h4>GOI 2034</h4>
+                                <span>10 units</span>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">₹10,524</div>
+                                <div class="change positive">+0.8%</div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'gold':
+                    content = `
+                        <h3>Gold Holdings</h3>
+                        <div class="watchlist-item">
+                            <div class="stock-info">
+                                <h4>Digital Gold</h4>
+                                <span>5.2 grams</span>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">₹26,110</div>
+                                <div class="change positive">+1.2%</div>
+                            </div>
+                        </div>`;
+                    break;
+            }
+            
+            assetContent.innerHTML = content;
+        }
+
+        // Market Tab Management
+        function switchMarketTab(tabType) {
+            document.querySelectorAll('.market-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Update market data based on tab type
+            updateMarketData(tabType);
+        }
+
+        function updateMarketData(tabType) {
+            const marketData = document.getElementById('marketData');
+            // For demo purposes, showing same data
+            // In real app, this would fetch different data based on tabType
+        }
+
+        // Trading Modal
+        function openTradingModal(symbol) {
+            currentSymbol = symbol;
+            document.getElementById('tradingSymbol').textContent = symbol;
+            document.getElementById('tradingModal').classList.add('active');
+        }
+
+        function closeTradingModal() {
+            document.getElementById('tradingModal').classList.remove('active');
+        }
+
+        function setOrderType(type) {
+            currentOrderType = type;
+            document.querySelectorAll('.order-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            const limitPriceGroup = document.getElementById('limitPriceGroup');
+            limitPriceGroup.style.display = type === 'limit' ? 'block' : 'none';
+        }
+
+        function setOrderSide(side) {
+            currentOrderSide = side;
+        }
+
+        function calculateTotal() {
+            const quantity = parseFloat(document.getElementById('quantityInput').value) || 0;
+            const price = currentOrderType === 'limit' ? 
+                (parseFloat(document.getElementById('limitPriceInput').value) || 0) : 2445.50;
+            
+            const totalAmount = quantity * price;
+            const brokerage = Math.max(totalAmount * 0.0003, 20); // 0.03% or ₹20
+            const totalCharges = brokerage + (totalAmount * 0.0018); // STT, taxes etc
+            
+            document.getElementById('totalAmount').textContent = `₹${totalAmount.toFixed(2)}`;
+            document.getElementById('brokerage').textContent = `₹${brokerage.toFixed(2)}`;
+            document.getElementById('totalCharges').textContent = `₹${totalCharges.toFixed(2)}`;
+        }
+
+        function placeOrder() {
+            const quantity = parseFloat(document.getElementById('quantityInput').value);
+            if (!quantity || quantity <= 0) {
+                showToast('Please enter valid quantity');
+                return;
+            }
+            
+            // Risk check for crypto orders
+            if (currentSymbol.includes('BTC') && quantity * 2145320 > 500000) {
+                showRiskModal();
+                return;
+            }
+            
+            showToast(`${currentOrderSide.toUpperCase()} order placed for ${quantity} ${currentSymbol}`);
+            closeTradingModal();
+            
+            // Add to orders list (in real app, this would sync with backend)
+            addToOrdersList();
+        }
+
+        function addToOrdersList() {
+            // This would typically sync with backend
+            showToast('Order added to your orders list');
+        }
+
+        // Risk Management
+        function showRiskModal() {
+            document.getElementById('riskModal').classList.add('active');
+        }
+
+        function closeRiskModal() {
+            document.getElementById('riskModal').classList.remove('active');
+        }
+
+        function proceedWithRisk() {
+            closeRiskModal();
+            showToast('High-risk order placed successfully');
+            closeTradingModal();
+        }
+
+        // Order Filtering
+        function filterOrders(status) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            document.querySelectorAll('.order-item').forEach(item => {
+                if (status === 'all' || item.dataset.status === status) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Funds Management
+        function addFunds() {
+            showToast('Redirecting to payment gateway...');
+            // In real app, this would open UPI/Netbanking interface
+        }
+
+        function withdrawFunds() {
+            showToast('Withdrawal request submitted');
+            // In real app, this would process withdrawal
+        }
+
+        // Profile Functions
+        function downloadTaxReport() {
+            showToast('Tax report download started');
+            // In real app, this would generate and download PDF
+        }
+
+        // Utility Functions
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            toast.classList.add('active');
+            
+            setTimeout(() => {
+                toast.classList.remove('active');
+            }, 3000);
+        }
+
+        // Chart Initialization
+        function initializeCharts() {
+            // Asset Allocation Pie Chart
+            const ctx = document.getElementById('allocationChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Stocks', 'US Stocks', 'Crypto', 'Bonds', 'Gold'],
+                    datasets: [{
+                        data: [65, 15, 10, 8, 2],
+                        backgroundColor: [
+                            '#007bff',
+                            '#28a745',
+                            '#ffc107',
+                            '#17a2b8',
+                            '#fd7e14'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        // Auto-login for demo (remove in production)
+        document.addEventListener('DOMContentLoaded', function() {
+            // For demo purposes, allow quick login
+            const quickLoginBtn = document.createElement('button');
+            quickLoginBtn.textContent = 'Quick Demo Login';
+            quickLoginBtn.className = 'btn btn-outline';
+            quickLoginBtn.style.marginTop = '20px';
+            quickLoginBtn.onclick = function() {
+                showScreen('mainApp');
+                initializeCharts();
+                showToast('Welcome to UniBroker Demo!');
+            };
+            
+            const loginScreen = document.getElementById('loginScreen');
+            loginScreen.appendChild(quickLoginBtn);
+            
+            // Initialize price updates simulation
+            simulatePriceUpdates();
+        });
+
+        // Simulate real-time price updates
+        function simulatePriceUpdates() {
+            setInterval(() => {
+                const priceElements = document.querySelectorAll('.price');
+                priceElements.forEach(element => {
+                    if (element.textContent.includes('₹')) {
+                        const currentPrice = parseFloat(element.textContent.replace('₹', '').replace(',', ''));
+                        const change = (Math.random() - 0.5) * 10;
+                        const newPrice = currentPrice + change;
+                        element.textContent = `₹${newPrice.toFixed(2)}`;
+                    }
+                });
+            }, 5000);
+        }
+
+        // Price Alert Simulation
+        function simulatePriceAlert() {
+            setTimeout(() => {
+                showToast('🔔 RELIANCE crossed ₹2,450! Your target price reached.');
+            }, 10000);
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            simulatePriceAlert();
+        });
+    </script>
+</body>
+</html>

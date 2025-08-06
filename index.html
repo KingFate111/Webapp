@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SphereTrade - Multi-Asset Trading Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Lightweight animated background */
+        .trading-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 50%, #0f1419 100%);
+            z-index: -1;
+        }
+
+        .trading-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.6; }
+        }
+
+        /* Header */
+        header {
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a:hover {
+            color: #00ff88;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-login {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            color: #fff;
+            border: 1px solid #fff;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login:hover {
+            background: #fff;
+            color: #0f1419;
+        }
+
+        .btn-signup {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(45deg, #00ff88, #007bff);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-signup:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Mobile menu */
+        .mobile-menu {
+            display: none;
+            background: #fff;
+            color: #333;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 6rem 1rem 2rem;
+            color: #fff;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #00ff88, #007bff, #ffc107);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00ff88;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* Hero Form */
+        .hero-form {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #00ff88;
+            text-align: center;
+        }
+
+        .form-subtitle {
+            text-align: center;
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .phone-input {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .country-code {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.8rem;
+            color: #fff;
+            border-radius: 8px 0 0 8px;
+            font-size: 0.9rem;
+            min-width: 80px;
+        }
+
+        .phone-number {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.8rem;
+            color: #fff;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            border-left: none;
+        }
+
+        .phone-number::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .cta-button {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(45deg, #00ff88, #007bff);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .qr-section {
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .qr-code {
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            margin: 0.5rem auto;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #333;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 4rem 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #0f1419, #007bff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            opacity: 0.7;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(0, 123, 255, 0.1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #00ff88, #007bff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #0f1419;
+        }
+
+        .feature-description {
+            opacity: 0.8;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        /* Markets Section */
+        .markets {
+            padding: 4rem 1rem;
+            color: #fff;
+        }
+
+        .markets-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .markets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .market-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.2rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .market-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .market-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .market-name {
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+            color: #00ff88;
+        }
+
+        .market-description {
+            opacity: 0.8;
+            font-size: 0.8rem;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(15, 20, 25, 0.95);
+            color: #fff;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .disclaimer {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 1rem;
+            line-height: 1.4;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu {
+                display: block;
+            }
+
+            .hero {
+                padding: 5rem 1rem 2rem;
+            }
+
+            .hero-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero-content p {
+                font-size: 1rem;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+
+            .hero-form {
+                padding: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .markets-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+
+            .auth-buttons {
+                gap: 0.3rem;
+            }
+
+            .btn-login,
+            .btn-signup {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: 1.8rem;
+            }
+
+            .logo {
+                font-size: 1.3rem;
+            }
+
+            .markets-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .phone-input {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .country-code {
+                border-radius: 8px;
+            }
+
+            .phone-number {
+                border-radius: 8px;
+                border-left: 1px solid rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        /* Reduce animations on mobile for performance */
+        @media (max-width: 768px) {
+            .trading-bg::before {
+                animation: none;
+                opacity: 0.4;
+            }
+            
+            .feature-card:hover,
+            .market-card:hover,
+            .stat-card:hover {
+                transform: none;
+            }
+        }
+
+        /* Link styling */
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="trading-bg"></div>
+
+    <header>
+        <nav>
+            <a href="index.html">
+                <div class="logo">SphereTrade</div>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#trade">Trade</a></li>
+                <li><a href="#markets">Markets</a></li>
+                <li><a href="#learn">Learn</a></li>
+                <li><a href="#support">Support</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="login.html" class="btn-login">Login</a>
+                <a href="openacc.html" class="btn-signup">Sign Up</a>
+            </div>
+            <button class="mobile-menu">☰</button>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Your Global Trading Gateway</h1>
+                <p>Trade and invest in multiple asset classes worldwide with our advanced platform. Access stocks, forex, commodities, and cryptocurrencies from global markets.</p>
+                
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">₹0</div>
+                        <div class="stat-label">Account Opening</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">5M+</div>
+                        <div class="stat-label">Global Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">₹0</div>
+                        <div class="stat-label">AMC 1st Year</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-form">
+                <h2 class="form-title">Start Trading Today</h2>
+                <p class="form-subtitle">Join millions of traders worldwide</p>
+                
+                <div class="phone-input">
+                    <select class="country-code">
+                        <option value="+91">🇮🇳 +91</option>
+                        <option value="+1">🇺🇸 +1</option>
+                        <option value="+44">🇬🇧 +44</option>
+                    </select>
+                    <input type="tel" class="phone-number" placeholder="Enter your mobile number">
+                </div>
+                
+                <a href="openacc.html">
+                    <button class="cta-button">Get Started Now</button>
+                </a>
+                
+                <div class="qr-section">
+                    <div class="qr-code">QR</div>
+                    <p style="font-size: 0.8rem; opacity: 0.8;">Scan to Register</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="features-container">
+            <h2 class="section-title">Why Choose SphereTrade?</h2>
+            <p class="section-subtitle">Experience next-generation trading with cutting-edge technology</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3 class="feature-title">Global Market Access</h3>
+                    <p class="feature-description">Trade in international markets with real-time data and competitive spreads.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3 class="feature-title">Advanced Platform</h3>
+                    <p class="feature-description">Professional-grade tools with advanced charting and technical indicators.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3 class="feature-title">Bank-Level Security</h3>
+                    <p class="feature-description">Multi-layer security with encryption and regulatory compliance.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">Fast Execution</h3>
+                    <p class="feature-description">Ultra-low latency trading with institutional-grade infrastructure.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Multi-Asset Trading</h3>
+                    <p class="feature-description">Trade stocks, forex, commodities, and crypto from one platform.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">AI-Powered Insights</h3>
+                    <p class="feature-description">Get personalized recommendations powered by AI and machine learning.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="markets">
+        <div class="markets-container">
+            <h2 class="section-title">Trade Global Markets</h2>
+            <p class="section-subtitle">Access diverse investment opportunities worldwide</p>
+            
+            <div class="markets-grid">
+                <div class="market-card">
+                    <div class="market-icon">📈</div>
+                    <h3 class="market-name">Stocks</h3>
+                    <p class="market-description">NYSE, NASDAQ, LSE, NSE exchanges</p>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-icon">💱</div>
+                    <h3 class="market-name">Forex</h3>
+                    <p class="market-description">80+ currency pairs</p>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-icon">🥇</div>
+                    <h3 class="market-name">Commodities</h3>
+                    <p class="market-description">Gold, oil, metals</p>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-icon">₿</div>
+                    <h3 class="market-name">Crypto</h3>
+                    <p class="market-description">200+ digital assets</p>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-icon">📊</div>
+                    <h3 class="market-name">Indices</h3>
+                    <p class="market-description">S&P 500, FTSE, Nifty</p>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-icon">🏛️</div>
+                    <h3 class="market-name">Bonds & ETFs</h3>
+                    <p class="market-description">Fixed income securities</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 SphereTrade. All rights reserved.</p>
+            <p class="disclaimer">
+                <strong>Disclaimer:</strong> Trading involves substantial risk and may not be suitable for all investors. 
+                Past performance does not guarantee future results.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Lightweight JavaScript for mobile optimization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simple form validation
+            const ctaButton = document.querySelector('.cta-button');
+            const phoneInput = document.querySelector('.phone-number');
+            
+            if (ctaButton && phoneInput) {
+                ctaButton.addEventListener('click', function(e) {
+                    if (!phoneInput.value.trim()) {
+                        e.preventDefault();
+                        alert('Please enter your mobile number');
+                        phoneInput.focus();
+                    }
+                });
+            }
+
+            // Mobile menu toggle (if needed)
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (mobileMenu && navLinks) {
+                mobileMenu.addEventListener('click', function() {
+                    navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

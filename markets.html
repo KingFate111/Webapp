@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Market Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #1a2a3a;
+            --secondary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --accent-color: #9b59b6;
+            --text-color: #333;
+            --bg-color: #f5f7fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                var(--secondary-color), 
+                var(--success-color), 
+                var(--accent-color), 
+                var(--warning-color));
+            animation: rainbow 8s linear infinite;
+            background-size: 400% 100%;
+        }
+        
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(to right, var(--secondary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .last-updated {
+            font-size: 14px;
+            color: var(--light-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .last-updated::before {
+            content: "🔄";
+            margin-right: 5px;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .market-nav {
+            background-color: var(--dark-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-tabs {
+            display: flex;
+            overflow-x: auto;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+        
+        .nav-tabs::-webkit-scrollbar {
+            height: 5px;
+        }
+        
+        .nav-tabs::-webkit-scrollbar-thumb {
+            background-color: var(--secondary-color);
+            border-radius: 5px;
+        }
+        
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            color: var(--light-color);
+            white-space: nowrap;
+            position: relative;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .nav-item::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .nav-item:hover::after {
+            width: 100%;
+        }
+        
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+        
+        .nav-item.active::after {
+            width: 100%;
+            background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+            animation: underlinePulse 2s infinite;
+        }
+        
+        @keyframes underlinePulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 25px 0;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-title {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+            color: var(--primary-color);
+            font-size: 22px;
+            font-weight: 600;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--secondary-color), transparent);
+        }
+        
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .market-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--secondary-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .market-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .market-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .market-card:hover::before {
+            opacity: 1;
+        }
+        
+        .market-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .market-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--primary-color);
+        }
+        
+        .market-price {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .market-change {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        .positive {
+            color: var(--success-color);
+        }
+        
+        .negative {
+            color: var(--danger-color);
+        }
+        
+        .neutral {
+            color: #7f8c8d;
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .change-icon {
+            margin-right: 5px;
+            font-size: 14px;
+        }
+        
+        .market-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-top: 8px;
+        }
+        
+        .stocks-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stocks-table th, .stocks-table td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stocks-table th {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+        
+        .stocks-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .stocks-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .view-all {
+            text-align: right;
+            margin-top: 15px;
+        }
+        
+        .view-all a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .view-all a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+        
+        .view-all a::after {
+            content: "→";
+            margin-left: 5px;
+            transition: transform 0.3s ease;
+        }
+        
+        .view-all a:hover::after {
+            transform: translateX(3px);
+        }
+        
+        .search-box {
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 14px;
+            outline: none;
+            padding-left: 45px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .search-box input:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 2px 15px rgba(74, 144, 226, 0.2);
+        }
+        
+        .search-box::before {
+            content: "🔍";
+            position: absolute;
+            left: 20px;
+            top: 14px;
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+        
+        .crypto-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        
+        .crypto-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-top: 3px solid var(--accent-color);
+        }
+        
+        .crypto-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .crypto-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .crypto-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .crypto-name {
+            font-weight: 600;
+        }
+        
+        .crypto-symbol {
+            color: #7f8c8d;
+            font-size: 13px;
+            margin-left: 5px;
+        }
+        
+        .crypto-price {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .crypto-market-cap {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            margin-top: 50px;
+            font-size: 14px;
+            position: relative;
+        }
+        
+        footer::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                var(--secondary-color), 
+                var(--success-color), 
+                var(--accent-color), 
+                var(--warning-color));
+            animation: rainbow 8s linear infinite;
+            background-size: 400% 100%;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(74, 144, 226, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0); }
+        }
+        
+        .flashing {
+            animation: flash 1s infinite;
+        }
+        
+        @keyframes flash {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .market-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .crypto-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+            
+            .nav-tabs {
+                padding-bottom: 5px;
+            }
+            
+            .nav-item {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">Global Market Dashboard</div>
+            <div class="last-updated" id="lastUpdated">Last updated: Loading...</div>
+        </div>
+    </header>
+    
+    <nav class="market-nav">
+        <ul class="nav-tabs">
+            <li class="nav-item active" data-tab="indian-markets">Indian Markets</li>
+            <li class="nav-item" data-tab="us-markets">US Markets</li>
+            <li class="nav-item" data-tab="crypto">Cryptocurrencies</li>
+            <li class="nav-item" data-tab="bonds">Bonds</li>
+            <li class="nav-item" data-tab="etfs">ETFs</li>
+            <li class="nav-item" data-tab="forex">Forex</li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <!-- Indian Markets Tab -->
+        <div id="indian-markets" class="tab-content active">
+            <h2 class="section-title">Indian Markets</h2>
+            
+            <div class="market-grid">
+                <div class="market-card pulse">
+                    <div class="market-header">
+                        <div class="market-name">NIFTY 50</div>
+                        <div class="market-price">₹22,326.90</div>
+                    </div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 112.65 (0.51%)
+                    </div>
+                    <div class="market-details">
+                        <span>High: ₹22,353.30</span>
+                        <span>Low: ₹22,200.45</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">SENSEX</div>
+                        <div class="market-price">₹73,648.62</div>
+                    </div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 354.45 (0.48%)
+                    </div>
+                    <div class="market-details">
+                        <span>High: ₹73,812.45</span>
+                        <span>Low: ₹73,200.30</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">BANK NIFTY</div>
+                        <div class="market-price">₹47,856.40</div>
+                    </div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 245.60 (0.52%)
+                    </div>
+                    <div class="market-details">
+                        <span>High: ₹47,923.75</span>
+                        <span>Low: ₹47,500.20</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">NIFTY SMALLCAP 100</div>
+                        <div class="market-price">₹15,823.45</div>
+                    </div>
+                    <div class="market-change negative">
+                        <span class="change-icon">▼</span> 56.30 (0.35%)
+                    </div>
+                    <div class="market-details">
+                        <span>High: ₹15,900.60</span>
+                        <span>Low: ₹15,750.25</span>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 class="section-title">Top NIFTY 50 Stocks</h3>
+            <div class="search-box">
+                <input type="text" placeholder="Search stocks...">
+            </div>
+            <table class="stocks-table">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>% Change</th>
+                        <th>Volume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>RELIANCE</td>
+                        <td>₹2,856.45</td>
+                        <td class="positive">+42.30</td>
+                        <td class="positive">+1.51%</td>
+                        <td>2.5M</td>
+                    </tr>
+                    <tr>
+                        <td>TCS</td>
+                        <td>₹3,923.60</td>
+                        <td class="positive">+35.75</td>
+                        <td class="positive">+0.92%</td>
+                        <td>1.8M</td>
+                    </tr>
+                    <tr>
+                        <td>HDFCBANK</td>
+                        <td>₹1,456.30</td>
+                        <td class="negative">-12.45</td>
+                        <td class="negative">-0.85%</td>
+                        <td>3.2M</td>
+                    </tr>
+                    <tr>
+                        <td>ICICIBANK</td>
+                        <td>₹1,023.75</td>
+                        <td class="positive">+8.90</td>
+                        <td class="positive">+0.88%</td>
+                        <td>2.7M</td>
+                    </tr>
+                    <tr>
+                        <td>INFY</td>
+                        <td>₹1,523.40</td>
+                        <td class="positive">+23.15</td>
+                        <td class="positive">+1.54%</td>
+                        <td>1.5M</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="view-all">
+                <a href="#">View all NIFTY 50 stocks →</a>
+            </div>
+        </div>
+        
+        <!-- US Markets Tab -->
+        <div id="us-markets" class="tab-content">
+            <h2 class="section-title">US Markets</h2>
+            
+            <div class="market-grid">
+                <div class="market-card pulse">
+                    <div class="market-header">
+                        <div class="market-name">S&P 500</div>
+                        <div class="market-price">$5,248.49</div>
+                    </div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 32.45 (0.62%)
+                    </div>
+                    <div class="market-details">
+                        <span>High: $5,253.75</span>
+                        <span>Low: $5,220.30</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">NASDAQ</div>
+                        <div class="market-price">$16,349.25</div>
+                    </div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 112.80 (0.69%)
+                    </div>
+                    <div class="market-details">
+                        <span>High: $16,375.40</span>
+                        <span>Low: $16,280.15</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">DOW JONES</div>
+                        <div class="market-price">$39,023.45</div>
+                    </div>
+                    <div class="market-change negative">
+                        <span class="change-icon">▼</span> 45.60 (0.12%)
+                    </div>
+                    <div class="market-details">
+                        <span>High: $39,120.75</span>
+                        <span>Low: $38,950.30</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">RUSSELL 2000</div>
+                        <div class="market-price">$2,045.60</div>
+                    </div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 15.30 (0.75%)
+                    </div>
+                    <div class="market-details">
+                        <span>High: $2,050.45</span>
+                        <span>Low: $2,030.25</span>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 class="section-title">Top US Stocks</h3>
+            <div class="search-box">
+                <input type="text" placeholder="Search stocks...">
+            </div>
+            <table class="stocks-table">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Company</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>% Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>AAPL</td>
+                        <td>Apple Inc.</td>
+                        <td>$173.25</td>
+                        <td class="positive">+2.45</td>
+                        <td class="positive">+1.43%</td>
+                    </tr>
+                    <tr>
+                        <td>MSFT</td>
+                        <td>Microsoft</td>
+                        <td>$420.45</td>
+                        <td class="positive">+5.60</td>
+                        <td class="positive">+1.35%</td>
+                    </tr>
+                    <tr>
+                        <td>GOOGL</td>
+                        <td>Alphabet</td>
+                        <td>$156.30</td>
+                        <td class="negative">-1.25</td>
+                        <td class="negative">-0.79%</td>
+                    </tr>
+                    <tr>
+                        <td>AMZN</td>
+                        <td>Amazon</td>
+                        <td>$185.75</td>
+                        <td class="positive">+3.40</td>
+                        <td class="positive">+1.86%</td>
+                    </tr>
+                    <tr>
+                        <td>TSLA</td>
+                        <td>Tesla</td>
+                        <td>$175.60</td>
+                        <td class="positive">+8.45</td>
+                        <td class="positive">+5.05%</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="view-all">
+                <a href="#">View all US stocks →</a>
+            </div>
+        </div>
+        
+        <!-- Cryptocurrencies Tab -->
+        <div id="crypto" class="tab-content">
+            <h2 class="section-title">Cryptocurrencies</h2>
+            
+            <div class="market-grid">
+                <div class="market-card pulse">
+                    <div class="market-header">
+                        <div class="market-name">Global Crypto Market Cap</div>
+                        <div class="market-price">$2.36T</div>
+                    </div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 3.24%
+                    </div>
+                    <div class="market-details">
+                        <span>24h Vol: $112.45B</span>
+                        <span>BTC Dominance: 51.2%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 class="section-title">Top Cryptocurrencies</h3>
+            <div class="search-box">
+                <input type="text" placeholder="Search cryptocurrencies...">
+            </div>
+            <div class="crypto-grid">
+                <div class="crypto-card">
+                    <div class="crypto-header">
+                        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="Bitcoin" class="crypto-icon">
+                        <div>
+                            <span class="crypto-name">Bitcoin</span>
+                            <span class="crypto-symbol">BTC</span>
+                        </div>
+                    </div>
+                    <div class="crypto-price">$67,245.30</div>
+                    <div class="market-change positive flashing">
+                        <span class="change-icon">▲</span> 2.45%
+                    </div>
+                    <div class="crypto-market-cap">$1.32T</div>
+                </div>
+                
+                <div class="crypto-card">
+                    <div class="crypto-header">
+                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="Ethereum" class="crypto-icon">
+                        <div>
+                            <span class="crypto-name">Ethereum</span>
+                            <span class="crypto-symbol">ETH</span>
+                        </div>
+                    </div>
+                    <div class="crypto-price">$3,523.60</div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 1.89%
+                    </div>
+                    <div class="crypto-market-cap">$423.45B</div>
+                </div>
+                
+                <div class="crypto-card">
+                    <div class="crypto-header">
+                        <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="Tether" class="crypto-icon">
+                        <div>
+                            <span class="crypto-name">Tether</span>
+                            <span class="crypto-symbol">USDT</span>
+                        </div>
+                    </div>
+                    <div class="crypto-price">$1.00</div>
+                    <div class="market-change neutral">
+                        <span class="change-icon">-</span> 0.00%
+                    </div>
+                    <div class="crypto-market-cap">$110.32B</div>
+                </div>
+                
+                <div class="crypto-card">
+                    <div class="crypto-header">
+                        <img src="https://cryptologos.cc/logos/bnb-bnb-logo.png" alt="BNB" class="crypto-icon">
+                        <div>
+                            <span class="crypto-name">BNB</span>
+                            <span class="crypto-symbol">BNB</span>
+                        </div>
+                    </div>
+                    <div class="crypto-price">$585.30</div>
+                    <div class="market-change negative">
+                        <span class="change-icon">▼</span> 0.45%
+                    </div>
+                    <div class="crypto-market-cap">$89.75B</div>
+                </div>
+                
+                <div class="crypto-card">
+                    <div class="crypto-header">
+                        <img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="Solana" class="crypto-icon">
+                        <div>
+                            <span class="crypto-name">Solana</span>
+                            <span class="crypto-symbol">SOL</span>
+                        </div>
+                    </div>
+                    <div class="crypto-price">$172.45</div>
+                    <div class="market-change positive flashing">
+                        <span class="change-icon">▲</span> 5.32%
+                    </div>
+                    <div class="crypto-market-cap">$76.23B</div>
+                </div>
+                
+                <div class="crypto-card">
+                    <div class="crypto-header">
+                        <img src="https://cryptologos.cc/logos/xrp-xrp-logo.png" alt="XRP" class="crypto-icon">
+                        <div>
+                            <span class="crypto-name">XRP</span>
+                            <span class="crypto-symbol">XRP</span>
+                        </div>
+                    </div>
+                    <div class="crypto-price">$0.5234</div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 1.23%
+                    </div>
+                    <div class="crypto-market-cap">$28.91B</div>
+                </div>
+            </div>
+            <div class="view-all">
+                <a href="#">View all cryptocurrencies →</a>
+            </div>
+        </div>
+        
+        <!-- Bonds Tab -->
+        <div id="bonds" class="tab-content">
+            <h2 class="section-title">Bonds</h2>
+            
+            <div class="market-grid">
+                <div class="market-card pulse">
+                    <div class="market-header">
+                        <div class="market-name">US 10-Year Treasury</div>
+                        <div class="market-price">4.32%</div>
+                    </div>
+                    <div class="market-change negative">
+                        <span class="change-icon">▼</span> 0.05
+                    </div>
+                    <div class="market-details">
+                        <span>Yield: 4.32%</span>
+                        <span>Price: 98.45</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">US 30-Year Treasury</div>
+                        <div class="market-price">4.48%</div>
+                    </div>
+                    <div class="market-change negative">
+                        <span class="change-icon">▼</span> 0.07
+                    </div>
+                    <div class="market-details">
+                        <span>Yield: 4.48%</span>
+                        <span>Price: 96.23</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">India 10-Year Bond</div>
+                        <div class="market-price">7.05%</div>
+                    </div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 0.03
+                    </div>
+                    <div class="market-details">
+                        <span>Yield: 7.05%</span>
+                        <span>Price: 95.60</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">Germany 10-Year Bund</div>
+                        <div class="market-price">2.45%</div>
+                    </div>
+                    <div class="market-change negative">
+                        <span class="change-icon">▼</span> 0.02
+                    </div>
+                    <div class="market-details">
+                        <span>Yield: 2.45%</span>
+                        <span>Price: 101.23</span>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 class="section-title">Global Bond Yields</h3>
+            <table class="stocks-table">
+                <thead>
+                    <tr>
+                        <th>Bond</th>
+                        <th>Yield</th>
+                        <th>Change</th>
+                        <th>Price</th>
+                        <th>1 Month</th>
+                        <th>1 Year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>US 2-Year</td>
+                        <td>4.65%</td>
+                        <td class="negative">-0.03</td>
+                        <td>99.12</td>
+                        <td class="positive">+0.12%</td>
+                        <td class="positive">+0.45%</td>
+                    </tr>
+                    <tr>
+                        <td>US 5-Year</td>
+                        <td>4.28%</td>
+                        <td class="negative">-0.04</td>
+                        <td>98.76</td>
+                        <td class="negative">-0.08%</td>
+                        <td class="positive">+0.32%</td>
+                    </tr>
+                    <tr>
+                        <td>US 10-Year</td>
+                        <td>4.32%</td>
+                        <td class="negative">-0.05</td>
+                        <td>98.45</td>
+                        <td class="negative">-0.12%</td>
+                        <td class="positive">+0.28%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- ETFs Tab -->
+        <div id="etfs" class="tab-content">
+            <h2 class="section-title">Exchange Traded Funds (ETFs)</h2>
+            
+            <div class="market-grid">
+                <div class="market-card pulse">
+                    <div class="market-header">
+                        <div class="market-name">SPDR S&P 500 ETF</div>
+                        <div class="market-price">$523.45</div>
+                    </div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 2.45 (0.47%)
+                    </div>
+                    <div class="market-details">
+                        <span>AUM: $412.35B</span>
+                        <span>Expense: 0.09%</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">iShares Core S&P 500</div>
+                        <div class="market-price">$525.60</div>
+                    </div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 2.30 (0.44%)
+                    </div>
+                    <div class="market-details">
+                        <span>AUM: $385.23B</span>
+                        <span>Expense: 0.03%</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">Invesco QQQ Trust</div>
+                        <div class="market-price">$453.25</div>
+                    </div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 5.60 (1.25%)
+                    </div>
+                    <div class="market-details">
+                        <span>AUM: $245.67B</span>
+                        <span>Expense: 0.20%</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">SPDR Gold Shares</div>
+                        <div class="market-price">$215.60</div>
+                    </div>
+                    <div class="market-change negative">
+                        <span class="change-icon">▼</span> 1.25 (0.58%)
+                    </div>
+                    <div class="market-details">
+                        <span>AUM: $62.35B</span>
+                        <span>Expense: 0.40%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 class="section-title">Top ETFs by AUM</h3>
+            <table class="stocks-table">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>AUM</th>
+                        <th>Expense Ratio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SPY</td>
+                        <td>SPDR S&P 500 ETF</td>
+                        <td>$523.45</td>
+                        <td class="positive">+2.45</td>
+                        <td>$412.35B</td>
+                        <td>0.09%</td>
+                    </tr>
+                    <tr>
+                        <td>IVV</td>
+                        <td>iShares Core S&P 500 ETF</td>
+                        <td>$525.60</td>
+                        <td class="positive">+2.30</td>
+                        <td>$385.23B</td>
+                        <td>0.03%</td>
+                    </tr>
+                    <tr>
+                        <td>QQQ</td>
+                        <td>Invesco QQQ Trust</td>
+                        <td>$453.25</td>
+                        <td class="positive">+5.60</td>
+                        <td>$245.67B</td>
+                        <td>0.20%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Forex Tab -->
+        <div id="forex" class="tab-content">
+            <h2 class="section-title">Foreign Exchange (Forex)</h2>
+            
+            <div class="market-grid">
+                <div class="market-card pulse">
+                    <div class="market-header">
+                        <div class="market-name">USD/EUR</div>
+                        <div class="market-price">0.9234</div>
+                    </div>
+                    <div class="market-change negative">
+                        <span class="change-icon">▼</span> 0.0023 (0.25%)
+                    </div>
+                    <div class="market-details">
+                        <span>High: 0.9256</span>
+                        <span>Low: 0.9212</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">USD/JPY</div>
+                        <div class="market-price">153.45</div>
+                    </div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 0.56 (0.37%)
+                    </div>
+                    <div class="market-details">
+                        <span>High: 153.78</span>
+                        <span>Low: 152.90</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">GBP/USD</div>
+                        <div class="market-price">1.2534</div>
+                    </div>
+                    <div class="market-change positive">
+                        <span class="change-icon">▲</span> 0.0034 (0.27%)
+                    </div>
+                    <div class="market-details">
+                        <span>High: 1.2556</span>
+                        <span>Low: 1.2501</span>
+                    </div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-header">
+                        <div class="market-name">USD/INR</div>
+                        <div class="market-price">83.45</div>
+                    </div>
+                    <div class="market-change negative">
+                        <span class="change-icon">▼</span> 0.12 (0.14%)
+                    </div>
+                    <div class="market-details">
+                        <span>High: 83.56</span>
+                        <span>Low: 83.32</span>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 class="section-title">Major Currency Pairs</h3>
+            <table class="stocks-table">
+                <thead>
+                    <tr>
+                        <th>Pair</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>% Change</th>
+                        <th>High</th>
+                        <th>Low</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>EUR/USD</td>
+                        <td>1.0823</td>
+                        <td class="positive">+0.0023</td>
+                        <td class="positive">+0.21%</td>
+                        <td>1.0834</td>
+                        <td>1.0801</td>
+                    </tr>
+                    <tr>
+                        <td>USD/JPY</td>
+                        <td>153.45</td>
+                        <td class="positive">+0.56</td>
+                        <td class="positive">+0.37%</td>
+                        <td>153.78</td>
+                        <td>152.90</td>
+                    </tr>
+                    <tr>
+                        <td>GBP/USD</td>
+                        <td>1.2534</td>
+                        <td class="positive">+0.0034</td>
+                        <td class="positive">+0.27%</td>
+                        <td>1.2556</td>
+                        <td>1.2501</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2023 Global Market Dashboard. All data is delayed by at least 15 minutes. Data provided for informational purposes only.</p>
+    </footer>
+
+    <script>
+        // Update last updated time
+        function updateLastUpdated() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit',
+                timeZoneName: 'short'
+            };
+            document.getElementById('lastUpdated').textContent = 'Last updated: ' + now.toLocaleString('en-US', options);
+        }
+        
+        // Update every second
+        updateLastUpdated();
+        setInterval(updateLastUpdated, 1000);
+        
+        // Tab switching functionality
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+                
+                // Add pulse effect to first card in the active tab
+                const firstCard = document.querySelector(`#${tabId} .market-card`);
+                if (firstCard) {
+                    firstCard.classList.add('pulse');
+                    setTimeout(() => firstCard.classList.remove('pulse'), 2000);
+                }
+            });
+        });
+        
+        // Simulate live data updates (in a real app, this would be API calls)
+        function simulateLiveUpdates() {
+            // Randomly update some market data
+            const marketCards = document.querySelectorAll('.market-card:not(.pulse)');
+            marketCards.forEach(card => {
+                if (Math.random() > 0.7) { // 30% chance of update
+                    const priceElement = card.querySelector('.market-price');
+                    const changeElement = card.querySelector('.market-change');
+                    const changeIcon = card.querySelector('.change-icon');
+                    
+                    if (priceElement && changeElement) {
+                        const currentPrice = parseFloat(priceElement.textContent.replace(/[^0-9.-]/g, ''));
+                        const changeAmount = (Math.random() * 2 - 1) * (currentPrice * 0.005); // ±0.5% change
+                        const newPrice = currentPrice + changeAmount;
+                        
+                        // Format based on content
+                        if (priceElement.textContent.includes('$')) {
+                            priceElement.textContent = '$' + newPrice.toFixed(2);
+                        } else if (priceElement.textContent.includes('₹')) {
+                            priceElement.textContent = '₹' + newPrice.toFixed(2);
+                        } else if (priceElement.textContent.includes('%')) {
+                            priceElement.textContent = newPrice.toFixed(2) + '%';
+                        } else {
+                            priceElement.textContent = newPrice.toFixed(2);
+                        }
+                        
+                        // Update change indicator
+                        const percentChange = (changeAmount / currentPrice * 100).toFixed(2);
+                        if (changeAmount > 0) {
+                            changeElement.className = 'market-change positive';
+                            changeIcon.textContent = '▲';
+                            changeElement.innerHTML = `<span class="change-icon">▲</span> ${Math.abs(changeAmount).toFixed(2)} (${percentChange}%)`;
+                            
+                            // Add flashing effect for significant changes
+                            if (Math.abs(percentChange) > 1) {
+                                changeElement.classList.add('flashing');
+                                setTimeout(() => changeElement.classList.remove('flashing'), 2000);
+                            }
+                        } else if (changeAmount < 0) {
+                            changeElement.className = 'market-change negative';
+                            changeIcon.textContent = '▼';
+                            changeElement.innerHTML = `<span class="change-icon">▼</span> ${Math.abs(changeAmount).toFixed(2)} (${percentChange}%)`;
+                            
+                            // Add flashing effect for significant changes
+                            if (Math.abs(percentChange) > 1) {
+                                changeElement.classList.add('flashing');
+                                setTimeout(() => changeElement.classList.remove('flashing'), 2000);
+                            }
+                        } else {
+                            changeElement.className = 'market-change neutral';
+                            changeIcon.textContent = '-';
+                            changeElement.innerHTML = `<span class="change-icon">-</span> 0.00 (0.00%)`;
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Update every 5 seconds
+        setInterval(simulateLiveUpdates, 5000);
+        
+        // Search functionality
+        document.querySelectorAll('.search-box input').forEach(input => {
+            input.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const table = this.closest('.tab-content').querySelector('table');
+                
+                if (table) {
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                }
+            });
+        });
+        
+        // Add initial pulse effect to first card
+        document.querySelector('.market-card').classList.add('pulse');
+    </script>
+</body>
+</html>

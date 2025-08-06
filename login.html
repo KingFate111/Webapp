@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> SphereTrade - Multi-Trading Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background elements */
+        .bg-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                60deg,
+                transparent,
+                transparent 35px,
+                rgba(255,255,255,0.05) 35px,
+                rgba(255,255,255,0.05) 70px
+            );
+            animation: drift 20s linear infinite;
+        }
+
+        @keyframes drift {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            max-width: 1200px;
+            width: 100%;
+            min-height: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+        }
+
+        .left-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .features {
+            list-style: none;
+            text-align: left;
+        }
+
+        .features li {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .features li::before {
+            content: '✓';
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .form-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .form-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            font-weight: normal;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-demo {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+
+        .btn-demo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-google {
+            background: white;
+            color: #333;
+            border: 2px solid #e1e5e9;
+        }
+
+        .btn-google:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+            z-index: 1;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .forgot-password a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .demo-features {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 2px solid #f39c12;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .demo-features h4 {
+            color: #e67e22;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .demo-features p {
+            color: #d35400;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                min-height: auto;
+                margin: 10px;
+            }
+
+            .left-panel {
+                padding: 40px 20px;
+                min-height: 200px;
+            }
+
+            .right-panel {
+                padding: 40px 20px;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .tagline {
+                font-size: 1rem;
+            }
+
+            .features {
+                display: none;
+            }
+        }
+
+        /* Market ticker animation */
+        .market-ticker {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            overflow: hidden;
+        }
+        a{
+            text-decoration: none;
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: scroll 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            margin-right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .ticker-positive { color: #2ecc71; }
+        .ticker-negative { color: #e74c3c; }
+
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="container">
+        <div class="left-panel">
+            <div class="logo">
+                <div class="logo-icon">📈</div>
+                SphereTrade 
+            </div>
+            <p class="tagline">Your Gateway to Global Financial Markets</p>
+            
+            <ul class="features">
+                <li>Trade across 100+ global markets</li>
+                <li>Real-time market data & analytics</li>
+                <li>Advanced charting tools</li>
+                <li>Multi-asset portfolio management</li>
+                <li>24/7 customer support</li>
+                <li>Bank-grade security</li>
+            </ul>
+
+            <div class="market-ticker">
+                <div class="ticker-content">
+                    <div class="ticker-item">
+                        <span>NIFTY 50:</span>
+                        <span class="ticker-positive">22,147 +0.66%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span>S&P 500:</span>
+                        <span class="ticker-positive">5,487 +0.45%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span>BTC:</span>
+                        <span class="ticker-positive">$67,234 +2.45%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span>GOLD:</span>
+                        <span class="ticker-negative">$2,034 -0.23%</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span>USD/INR:</span>
+                        <span class="ticker-positive">83.24 +0.15%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="form-container">
+                <div class="form-tabs">
+                    <button class="tab-button active" onclick="switchTab('login')">Login</button>
+                    <button class="tab-button" onclick="switchTab('signup')">Sign Up</button>
+                </div>
+
+                <div class="success-message" id="success-message"></div>
+                <div class="error-message" id="error-message"></div>
+
+                <!-- Login Form -->
+                <div id="login-form" class="form-content active">
+                    <form onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label for="login-email">Email Address</label>
+                            <input type="email" id="login-email" placeholder="Enter your email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <div class="password-container">
+                                <input type="password" id="login-password" placeholder="Enter your password" required>
+                                <span class="password-toggle" onclick="togglePassword('login-password')">👁️</span>
+                            </div>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="remember-me">
+                            <label for="remember-me">Remember me</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <span class="loading" id="login-loading"></span>
+                            <span id="login-text">Login to TradeHub</span>
+                        </button>
+
+                      <a href="dashboard.html">  <button type="button" class="btn btn-demo" onclick="quickDemo()">
+                            🚀 Quick Demo Access
+                        </button></a>
+
+                        <div class="divider">
+                            <span>or continue with</span>
+                        </div>
+
+                        <button type="button" class="btn btn-google" onclick="googleLogin()">
+                            <svg width="20" height="20" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                            Continue with Google
+                        </button>
+
+                        <div class="forgot-password">
+                            <a href="#" onclick="forgotPassword()">Forgot your password?</a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Signup Form -->
+                <div id="signup-form" class="form-content">
+                    <form onsubmit="handleSignup(event)">
+                        <div class="form-group">
+                            <label for="signup-name">Full Name</label>
+                            <input type="text" id="signup-name" placeholder="Enter your full name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signup-email">Email Address</label>
+                            <input type="email" id="signup-email" placeholder="Enter your email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signup-phone">Phone Number</label>
+                            <input type="tel" id="signup-phone" placeholder="Enter your phone number" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signup-password">Password</label>
+                            <div class="password-container">
+                                <input type="password" id="signup-password" placeholder="Create a strong password" required>
+                                <span class="password-toggle" onclick="togglePassword('signup-password')">👁️</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm Password</label>
+                            <div class="password-container">
+                                <input type="password" id="confirm-password" placeholder="Confirm your password" required>
+                                <span class="password-toggle" onclick="togglePassword('confirm-password')">👁️</span>
+                            </div>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="agree-terms" required>
+                            <label for="agree-terms">I agree to the <a href="#" style="color: #667eea;">Terms & Conditions</a> and <a href="#" style="color: #667eea;">Privacy Policy</a></label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="newsletter">
+                            <label for="newsletter">Subscribe to market updates and newsletter</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <span class="loading" id="signup-loading"></span>
+                            <span id="signup-text">Create Account</span>
+                        </button>
+
+                        <button type="button" class="btn btn-demo" onclick="quickDemo()">
+                            🚀 Try Demo First
+                        </button>
+
+                        <div class="divider">
+                            <span>or sign up with</span>
+                        </div>
+
+                        <button type="button" class="btn btn-google" onclick="googleSignup()">
+                            <svg width="20" height="20" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                            Sign up with Google
+                        </button>
+                    </form>
+                </div>
+
+                <div class="demo-features">
+                    <h4>🎯 Demo Account Features</h4>
+                    <p>Get instant access to our full trading platform with ₹10,00,000 virtual funds. Experience real market data, advanced charts, and all trading tools without any risk!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update form content
+            document.querySelectorAll('.form-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tab + '-form').classList.add('active');
+
+            // Clear messages
+            clearMessages();
+        }
+
+        // Password toggle functionality
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = input.nextElementSibling;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                toggle.textContent = '👁️';
+            }
+        }
+
+        // Show/hide messages
+        function showMessage(type, message) {
+            clearMessages();
+            const messageElement = document.getElementById(type + '-message');
+            messageElement.textContent = message;
+            messageElement.style.display = 'block';
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 5000);
+        }
+
+        function clearMessages() {
+            document.getElementById('success-message').style.display = 'none';
+            document.getElementById('error-message').style.display = 'none';
+        }
+
+        // Login handler
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+            
+            // Show loading
+            document.getElementById('login-loading').style.display = 'inline-block';
+            document.getElementById('login-text').textContent = 'Logging in...';
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Hide loading
+                document.getElementById('login-loading').style.display = 'none';
+                document.getElementById('login-text').textContent = 'Login to TradeHub';
+                
+                // Demo credentials
+                if (email === 'demo@tradehub.com' && password === 'demo123') {
+                    showMessage('success', 'Welcome back! Redirecting to your dashboard...');
+                    setTimeout(() => {
+                        redirectToDashboard('user');
+                    }, 2000);
+                } else {
+                    // Simulate successful login for any valid email/password
+                    if (email && password.length >= 6) {
+                        showMessage('success', 'Login successful! Redirecting to your dashboard...');
+                        setTimeout(() => {
+                            redirectToDashboard('user');
+                        }, 2000);
+                    } else {
+                        showMessage('error', 'Please check your credentials and try again.');
+                    }
+                }
+            }, 1500);
+        }
+
+        // Signup handler
+        function handleSignup(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const phone = document.getElementById('signup-phone').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const agreeTerms = document.getElementById('agree-terms').checked;
+            
+            // Validation
+            if (password !== confirmPassword) {
+                showMessage('error', 'Passwords do not match!');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage('error', 'Password must be at least 6 characters long!');
+                return;
+            }
+            
+            if (!agreeTerms) {
+                showMessage('error', 'Please agree to the Terms & Conditions!');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('signup-loading').style.display = 'inline-block';
+            document.getElementById('signup-text').textContent = 'Creating Account...';
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Hide loading
+                document.getElementById('signup-loading').style.display = 'none';
+                document.getElementById('signup-text').textContent = 'Create Account';
+                
+                showMessage('success', `Welcome ${name}! Your account has been created successfully. Redirecting to dashboard...`);
+                setTimeout(() => {
+                    redirectToDashboard('user');
+                }, 2000);
+            }, 2000);
+        }
+
+        // Quick Demo Access
+        function quickDemo() {
+            showMessage('success', '🎉 Demo account activated! Loading trading platform with ₹10,00,000 virtual funds...');
+            setTimeout(() => {
+                redirectToDashboard('demo');
+            }, 2000);
+        }
+
+        // Google authentication (simulated)
+        function googleLogin() {
+            showMessage('success', 'Google authentication successful! Redirecting...');
+            setTimeout(() => {
+                redirectToDashboard('user');
+            }, 1500);
+        }
+
+        function googleSignup() {
+            showMessage('success', 'Google account linked successfully! Creating your profile...');
+            setTimeout(() => {
+                redirectToDashboard('user');
+            }, 1500);
+        }
+
+        // Forgot password
+        function forgotPassword() {
+            const email = prompt('Enter your email address to reset password:');
+            if (email) {
+                showMessage('success', `Password reset instructions have been sent to ${email}`);
+            }
+        }
+
+        // Redirect to dashboard (in a real app, this would navigate to the trading platform)
+       function redirectToDashboard(accountType) {
+    if (accountType === 'demo') {
+        alert(
+            '🚀 Demo Dashboard Loading!\n\n' +
+            '✅ Virtual Balance: ₹10,00,000\n' +
+            '✅ All markets unlocked\n' +
+            '✅ Real-time data\n' +
+            '✅ Full trading features\n\n' +
+            '(In a real application, this would redirect to the demo dashboard.)'
+        );
+    }
+}

@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SphereTrade - Markets</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo h1 {
+            background: linear-gradient(45deg, #00f5ff, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #00f5ff, #ff6b6b);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 10px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-bar input {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            width: 300px;
+            outline: none;
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .nav-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-tabs {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            overflow-x: auto;
+            padding: 0 20px;
+        }
+
+        .nav-tab {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-tab:hover {
+            color: #00f5ff;
+            background: rgba(0, 245, 255, 0.1);
+        }
+
+        .nav-tab.active {
+            color: #00f5ff;
+            border-bottom-color: #00f5ff;
+            background: rgba(0, 245, 255, 0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .market-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .market-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00f5ff, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .market-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .stat-name {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-change {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .positive { color: #00ff88; }
+        .negative { color: #ff4757; }
+
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .market-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .market-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 245, 255, 0.3);
+        }
+
+        .market-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .market-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .market-symbol {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 5px;
+        }
+
+        .market-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .market-change {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .change-arrow {
+            font-size: 0.8rem;
+        }
+
+        .crypto-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .btc { background: #f7931a; }
+        .eth { background: #627eea; }
+        .ada { background: #0033ad; }
+        .sol { background: #9945ff; }
+        .dot { background: #e6007a; }
+        .matic { background: #8247e5; }
+        .link { background: #2a5ada; }
+        .ltc { background: #345d9d; }
+
+        .forex-pair {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .currency-flag {
+            width: 24px;
+            height: 18px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .usd { background: linear-gradient(to right, #b22234, #ffffff, #3c3b6e); }
+        .eur { background: linear-gradient(to right, #003399, #ffcc00); }
+        .gbp { background: linear-gradient(to right, #012169, #ffffff, #c41e3a); }
+        .jpy { background: radial-gradient(circle, #bc002d 25%, #ffffff 25%); }
+        .inr { background: linear-gradient(to bottom, #ff9933, #ffffff, #138808); }
+
+        .bond-yield {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #00f5ff;
+        }
+
+        .etf-category {
+            background: rgba(0, 245, 255, 0.1);
+            color: #00f5ff;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(45deg, #00f5ff, #ff6b6b);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .search-bar input {
+                width: 200px;
+            }
+
+            .nav-tabs {
+                padding: 0 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .market-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .market-stats {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">ST</div>
+                <h1>SphereTrade</h1>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search markets, stocks, crypto..." id="searchInput">
+                <span style="margin-left: 10px;">🔍</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-container">
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('indian-markets')">🇮🇳 Indian Markets</button>
+            <button class="nav-tab" onclick="showSection('usa-markets')">🇺🇸 USA Markets</button>
+            <button class="nav-tab" onclick="showSection('crypto')">₿ Crypto</button>
+            <button class="nav-tab" onclick="showSection('bonds')">📈 Bonds</button>
+            <button class="nav-tab" onclick="showSection('etfs')">📊 ETFs</button>
+            <button class="nav-tab" onclick="showSection('forex')">💱 Forex</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Indian Markets Section -->
+        <div class="market-section active" id="indian-markets">
+            <div class="section-header">
+                <h2 class="section-title">🇮🇳 Indian Markets</h2>
+                <button class="refresh-btn" onclick="refreshData()">
+                    <span class="live-indicator"></span>
+                    Live Data
+                </button>
+            </div>
+
+            <div class="market-stats">
+                <div class="stat-card">
+                    <div class="stat-name">NIFTY 50</div>
+                    <div class="stat-value">21,456.78</div>
+                    <div class="stat-change positive">+1.24% (+264.85)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-name">SENSEX</div>
+                    <div class="stat-value">70,945.23</div>
+                    <div class="stat-change positive">+0.89% (+628.45)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-name">BANK NIFTY</div>
+                    <div class="stat-value">46,832.15</div>
+                    <div class="stat-change negative">-0.56% (-264.78)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-name">NIFTY SMALLCAP</div>
+                    <div class="stat-value">15,687.45</div>
+                    <div class="stat-change positive">+2.14% (+329.87)</div>
+                </div>
+            </div>
+
+            <div class="market-grid" id="indianStocks">
+                <!-- Indian stocks will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- USA Markets Section -->
+        <div class="market-section" id="usa-markets">
+            <div class="section-header">
+                <h2 class="section-title">🇺🇸 USA Markets</h2>
+                <button class="refresh-btn" onclick="refreshData()">
+                    <span class="live-indicator"></span>
+                    Live Data
+                </button>
+            </div>
+
+            <div class="market-stats">
+                <div class="stat-card">
+                    <div class="stat-name">NASDAQ</div>
+                    <div class="stat-value">17,845.73</div>
+                    <div class="stat-change positive">+0.78% (+138.92)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-name">DOW JONES</div>
+                    <div class="stat-value">38,956.48</div>
+                    <div class="stat-change negative">-0.34% (-132.85)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-name">S&P 500</div>
+                    <div class="stat-value">5,087.92</div>
+                    <div class="stat-change positive">+0.52% (+26.45)</div>
+                </div>
+            </div>
+
+            <div class="market-grid" id="usaStocks">
+                <!-- USA stocks will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Crypto Section -->
+        <div class="market-section" id="crypto">
+            <div class="section-header">
+                <h2 class="section-title">₿ Cryptocurrency</h2>
+                <button class="refresh-btn" onclick="refreshData()">
+                    <span class="live-indicator"></span>
+                    Live Data
+                </button>
+            </div>
+             <!-- <div class="market-stats">
+                <div class="stat-card">
+                    <div class="stat-name">NIFTY 50</div>
+                    <div class="stat-value">21,456.78</div>
+                    <div class="stat-change positive">+1.24% (+264.85)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-name">SENSEX</div>
+                    <div class="stat-value">70,945.23</div>
+                    <div class="stat-change positive">+0.89% (+628.45)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-name">BANK NIFTY</div>
+                    <div class="stat-value">46,832.15</div>
+                    <div class="stat-change negative">-0.56% (-264.78)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-name">NIFTY SMALLCAP</div>
+                    <div class="stat-value">15,687.45</div>
+                    <div class="stat-change positive">+2.14% (+329.87)</div>
+                </div>
+            </div> -->
+
+
+            <div class="market-grid" id="cryptoList">
+                <!-- Crypto will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Bonds Section -->
+        <div class="market-section" id="bonds">
+            <div class="section-header">
+                <h2 class="section-title">📈 Bonds & Treasury</h2>
+                <button class="refresh-btn" onclick="refreshData()">
+                    <span class="live-indicator"></span>
+                    Live Data
+                </button>
+            </div>
+
+            <div class="market-grid" id="bondsList">
+                <!-- Bonds will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- ETFs Section -->
+        <div class="market-section" id="etfs">
+            <div class="section-header">
+                <h2 class="section-title">📊 Exchange Traded Funds</h2>
+                <button class="refresh-btn" onclick="refreshData()">
+                    <span class="live-indicator"></span>
+                    Live Data
+                </button>
+            </div>
+
+            <div class="market-grid" id="etfsList">
+                <!-- ETFs will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Forex Section -->
+        <div class="market-section" id="forex">
+            <div class="section-header">
+                <h2 class="section-title">💱 Foreign Exchange</h2>
+                <button class="refresh-btn" onclick="refreshData()">
+                    <span class="live-indicator"></span>
+                    Live Data
+                </button>
+            </div>
+
+            <div class="market-grid" id="forexList">
+                <!-- Forex will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Market data
+        const marketData = {
+            indianStocks: [
+                { name: "Reliance Industries", symbol: "RELIANCE", price: "2,845.60", change: "+1.25", changePercent: "+0.44" },
+                { name: "Tata Consultancy Services", symbol: "TCS", price: "3,987.45", change: "+45.78", changePercent: "+1.16" },
+                { name: "HDFC Bank", symbol: "HDFCBANK", price: "1,687.90", change: "-12.35", changePercent: "-0.73" },
+                { name: "Infosys", symbol: "INFY", price: "1,456.78", change: "+23.45", changePercent: "+1.64" },
+                { name: "ICICI Bank", symbol: "ICICIBANK", price: "1,089.65", change: "+8.90", changePercent: "+0.82" },
+                { name: "State Bank of India", symbol: "SBIN", price: "789.45", change: "-5.67", changePercent: "-0.71" },
+                { name: "Bharti Airtel", symbol: "BHARTIARTL", price: "1,234.56", change: "+15.67", changePercent: "+1.29" },
+                { name: "ITC", symbol: "ITC", price: "456.78", change: "+2.34", changePercent: "+0.51" },
+                { name: "Larsen & Toubro", symbol: "LT", price: "3,456.89", change: "+34.56", changePercent: "+1.01" },
+                { name: "Wipro", symbol: "WIPRO", price: "567.89", change: "-4.56", changePercent: "-0.80" }
+            ],
+            usaStocks: [
+                { name: "Apple Inc.", symbol: "AAPL", price: "$189.25", change: "+2.45", changePercent: "+1.31" },
+                { name: "Microsoft Corporation", symbol: "MSFT", price: "$412.78", change: "+5.67", changePercent: "+1.39" },
+                { name: "Amazon.com Inc.", symbol: "AMZN", price: "$145.89", change: "-1.23", changePercent: "-0.84" },
+                { name: "NVIDIA Corporation", symbol: "NVDA", price: "$789.45", change: "+12.34", changePercent: "+1.59" },
+                { name: "Tesla Inc.", symbol: "TSLA", price: "$234.56", change: "-3.45", changePercent: "-1.45" },
+                { name: "Meta Platforms", symbol: "META", price: "$456.78", change: "+8.90", changePercent: "+1.99" },
+                { name: "Alphabet Inc.", symbol: "GOOGL", price: "$134.67", change: "+1.23", changePercent: "+0.92" },
+                { name: "Berkshire Hathaway", symbol: "BRK.B", price: "$398.45", change: "+2.67", changePercent: "+0.67" },
+                { name: "Johnson & Johnson", symbol: "JNJ", price: "$167.89", change: "-0.45", changePercent: "-0.27" },
+                { name: "JPMorgan Chase", symbol: "JPM", price: "$178.90", change: "+1.56", changePercent: "+0.88" }
+            ],
+            crypto: [
+                { name: "Bitcoin", symbol: "BTC", price: "$43,256.78", change: "+1,234.56", changePercent: "+2.94", icon: "btc" },
+                { name: "Ethereum", symbol: "ETH", price: "$2,645.89", change: "+45.67", changePercent: "+1.76", icon: "eth" },
+                { name: "Cardano", symbol: "ADA", price: "$0.385", change: "-0.012", changePercent: "-3.02", icon: "ada" },
+                { name: "Solana", symbol: "SOL", price: "$98.45", change: "+5.67", changePercent: "+6.12", icon: "sol" },
+                { name: "Polkadot", symbol: "DOT", price: "$5.25", change: "+0.23", changePercent: "+4.58", icon: "dot" },
+                { name: "Polygon", symbol: "MATIC", price: "$0.89", change: "-0.034", changePercent: "-3.68", icon: "matic" },
+                { name: "Chainlink", symbol: "LINK", price: "$14.56", change: "+0.78", changePercent: "+5.67", icon: "link" },
+                { name: "Litecoin", symbol: "LTC", price: "$78.90", change: "-2.34", changePercent: "-2.88", icon: "ltc" }
+            ],
+            bonds: [
+                { name: "US 10-Year Treasury", symbol: "TNX", yield: "4.25%", change: "+0.05", changePercent: "+1.19" },
+                { name: "US 30-Year Treasury", symbol: "TYX", yield: "4.45%", change: "+0.08", changePercent: "+1.83" },
+                { name: "US 2-Year Treasury", symbol: "US2Y", yield: "4.89%", change: "-0.03", changePercent: "-0.61" },
+                { name: "India 10-Year Bond", symbol: "IN10Y", yield: "7.15%", change: "+0.12", changePercent: "+1.71" },
+                { name: "India 5-Year Bond", symbol: "IN5Y", yield: "6.89%", change: "+0.08", changePercent: "+1.17" },
+                { name: "Corporate Bond Index", symbol: "LQD", yield: "4.78%", change: "+0.06", changePercent: "+1.27" },
+                { name: "High Yield Bonds", symbol: "HYG", yield: "7.89%", change: "-0.12", changePercent: "-1.50" },
+                { name: "Emerging Market Bonds", symbol: "EMB", yield: "6.45%", change: "+0.15", changePercent: "+2.38" }
+            ],
+            etfs: [
+                { name: "SPDR Gold Trust", symbol: "GLD", price: "$189.45", change: "+2.34", changePercent: "+1.25", category: "Gold" },
+                { name: "iShares Silver Trust", symbol: "SLV", price: "$23.67", change: "-0.45", changePercent: "-1.87", category: "Silver" },
+                { name: "ProShares Bitcoin ETF", symbol: "BITO", price: "$56.78", change: "+1.23", changePercent: "+2.21", category: "Bitcoin" },
+                { name: "SPDR S&P 500 ETF", symbol: "SPY", price: "$508.90", change: "+2.67", changePercent: "+0.53", category: "US Equity" },
+                { name: "Vanguard Total Stock Market", symbol: "VTI", price: "$234.56", change: "+1.89", changePercent: "+0.81", category: "US Equity" },
+                { name: "iShares MSCI Emerging Markets", symbol: "EEM", price: "$89.45", change: "+0.67", changePercent: "+0.75", category: "Emerging Markets" },
+                { name: "BlackRock iShares Core S&P 500", symbol: "IVV", price: "$456.78", change: "+2.34", changePercent: "+0.52", category: "US Equity" },
+                { name: "Vanguard FTSE Developed Markets", symbol: "VEA", price: "$45.67", change: "+0.23", changePercent: "+0.51", category: "International" },
+                { name: "iShares Core MSCI Total International", symbol: "IXUS", price: "$67.89", change: "+0.45", changePercent: "+0.67", category: "International" },
+                { name: "Vanguard Real Estate ETF", symbol: "VNQ", price: "$87.45", change: "-0.67", changePercent: "-0.76", category: "Real Estate" }
+            ],
+            forex: [
+                { pair: "USD/EUR", rate: "0.9245", change: "+0.0012", changePercent: "+0.13", base: "usd", quote: "eur" },
+                { pair: "USD/JPY", rate: "149.85", change: "-0.45", changePercent: "-0.30", base: "usd", quote: "jpy" },
+                { pair: "GBP/USD", rate: "1.2567", change: "+0.0023", changePercent: "+0.18", base: "gbp", quote: "usd" },
+                { pair: "USD/INR", rate: "83.25", change: "+0.15", changePercent: "+0.18", base: "usd", quote: "inr" },
+                { pair: "EUR/USD", rate: "1.0815", change: "-0.0008", changePercent: "-0.07", base: "eur", quote: "usd" },
+                { pair: "AUD/USD", rate: "0.6789", change: "+0.0034", changePercent: "+0.50", base: "aud", quote: "usd" },
+                { pair: "USD/CAD", rate: "1.3456", change: "-0.0012", changePercent: "-0.09", base: "usd", quote: "cad" },
+                { pair: "USD/CHF", rate: "0.8978", change: "+0.0015", changePercent: "+0.17", base: "usd", quote: "chf" }
+            ]
+        };
+
+        function createMarketCard(item, type) {
+            const isPositive = parseFloat(item.change) > 0;
+            const changeClass = isPositive ? 'positive' : 'negative';
+            const arrow = isPositive ? '↗' : '↘';
+            
+            let cardContent = '';
+            
+            switch(type) {
+                case 'stock':
+                    cardContent = `
+                        <div class="market-header">
+                            <div class="market-name">${item.name}</div>
+                            <div class="market-symbol">${item.symbol}</div>
+                        </div>
+                        <div class="market-price">${item.price}</div>
+                        <div class="market-change ${changeClass}">
+                            <span class="change-arrow">${arrow}</span>
+                            ${item.change} (${item.changePercent}%)
+                        </div>
+                    `;
+                    break;
+                    
+                case 'crypto':
+                    cardContent = `
+                        <div class="market-header">
+                            <div class="market-name">
+                                <div class="crypto-icon ${item.icon}"></div>
+                                ${item.name}
+                            </div>
+                            <div class="market-symbol">${item.symbol}</div>
+                        </div>
+                        <div class="market-price">${item.price}</div>
+                        <div class="market-change ${changeClass}">
+                            <span class="change-arrow">${arrow}</span>
+                            ${item.change} (${item.changePercent}%)
+                        </div>
+                    `;
+                    break;
+                    
+                case 'bond':
+                    cardContent = `
+                        <div class="market-header">
+                            <div class="market-name">${item.name}</div>
+                            <div class="market-symbol">${item.symbol}</div>
+                        </div>
+                        <div class="bond-yield">${item.yield}</div>
+                        <div class="market-change ${changeClass}">
+                            <span class="change-arrow">${arrow}</span>
+                            ${item.change} (${item.changePercent}%)
+                        </div>
+                    `;
+                    break;
+                    
+                case 'etf':
+                    cardContent = `
+                        <div class="etf-category">${item.category}</div>
+                        <div class="market-header">
+                            <div class="market-name">${item.name}</div>
+                            <div class="market-symbol">${item.symbol}</div>
+                        </div>
+                        <div class="market-price">${item.price}</div>
+                        <div class="market-change ${changeClass}">
+                            <span class="change-arrow">${arrow}</span>
+                            ${item.change} (${item.changePercent}%)
+                        </div>
+                    `;
+                    break;
+                    
+                case 'forex':
+                    cardContent = `
+                        <div class="forex-pair">
+                            <div class="currency-flag ${item.base}"></div>
+                            <div class="currency-flag ${item.quote}"></div>
+                            <div class="market-name">${item.pair}</div>
+                        </div>
+                        <div class="market-price">${item.rate}</div>
+                        <div class="market-change ${changeClass}">
+                            <span class="change-arrow">${arrow}</span>
+                            ${item.change} (${item.changePercent}%)
+                        </div>
+                    `;
+                    break;
+            }
+            
+            return `<div class="market-card">${cardContent}</div>`;
+        }
+
+        function populateMarkets() {
+            // Populate Indian Stocks
+            const indianGrid = document.getElementById('indianStocks');
+            indianGrid.innerHTML = marketData.indianStocks.map(stock => createMarketCard(stock, 'stock')).join('');
+            
+            // Populate USA Stocks
+            const usaGrid = document.getElementById('usaStocks');
+            usaGrid.innerHTML = marketData.usaStocks.map(stock => createMarketCard(stock, 'stock')).join('');
+            
+            // Populate Crypto
+            const cryptoGrid = document.getElementById('cryptoList');
+            cryptoGrid.innerHTML = marketData.crypto.map(crypto => createMarketCard(crypto, 'crypto')).join('');
+            
+            // Populate Bonds
+            const bondsGrid = document.getElementById('bondsList');
+            bondsGrid.innerHTML = marketData.bonds.map(bond => createMarketCard(bond, 'bond')).join('');
+            
+            // Populate ETFs
+            const etfsGrid = document.getElementById('etfsList');
+            etfsGrid.innerHTML = marketData.etfs.map(etf => createMarketCard(etf, 'etf')).join('');
+            
+            // Populate Forex
+            const forexGrid = document.getElementById('forexList');
+            forexGrid.innerHTML = marketData.forex.map(forex => createMarketCard(forex, 'forex')).join('');
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.market-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function refreshData() {
+            // Simulate data refresh with small random changes
+            Object.keys(marketData).forEach(category => {
+                marketData[category].forEach(item => {
+                    if (item.price || item.rate || item.yield) {
+                        // Add small random fluctuation
+                        const currentValue = parseFloat((item.price || item.rate || item.yield).replace(/[$₹%,]/g, ''));
+                        const fluctuation = (Math.random() - 0.5) * 0.02; // ±1% fluctuation
+                        const newValue = currentValue * (1 + fluctuation);
+                        
+                        if (item.price) {const symbol = item.price.includes(')') ? '' : '₹';
+
+                            item.price = symbol + newValue.toFixed(2);
+                        } else if (item.rate) {
+                            item.rate = newValue.toFixed(4);
+                        } else if (item.yield) {
+                            item.yield = newValue.toFixed(2) + '%';
+                        }
+                        
+                        // Update change values
+                        const changeValue = (Math.random() - 0.5) * 10;
+                        const changePercent = (Math.random() - 0.5) * 2;
+                        item.change = (changeValue >= 0 ? '+' : '') + changeValue.toFixed(2);
+                        item.changePercent = (changePercent >= 0 ? '+' : '') + changePercent.toFixed(2);
+                    }
+                });
+            });
+            
+            // Update index values
+            updateIndexValues();
+            
+            // Repopulate markets
+            populateMarkets();
+        }
+
+        function updateIndexValues() {
+            // Update major indices with random fluctuations
+            const indices = [
+                { id: 'nifty', base: 21456.78 },
+                { id: 'sensex', base: 70945.23 },
+                { id: 'banknifty', base: 46832.15 },
+                { id: 'smallcap', base: 15687.45 },
+                { id: 'nasdaq', base: 17845.73 },
+                { id: 'dow', base: 38956.48 },
+                { id: 'sp500', base: 5087.92 }
+            ];
+            
+            indices.forEach(index => {
+                const fluctuation = (Math.random() - 0.5) * 0.01;
+                const newValue = index.base * (1 + fluctuation);
+                const change = newValue - index.base;
+                const changePercent = (change / index.base) * 100;
+                
+                // Find and update the stat cards
+                const statCards = document.querySelectorAll('.stat-card');
+                statCards.forEach(card => {
+                    const valueElement = card.querySelector('.stat-value');
+                    const changeElement = card.querySelector('.stat-change');
+                    
+                    if (valueElement && valueElement.textContent.includes(index.base.toFixed(2).substring(0, 5))) {
+                        valueElement.textContent = newValue.toFixed(2);
+                        const changeClass = change >= 0 ? 'positive' : 'negative';
+                        const sign = change >= 0 ? '+' : '';
+                        changeElement.className = `stat-change ${changeClass}`;
+                        changeElement.textContent = `${sign}${changePercent.toFixed(2)}% (${sign}${change.toFixed(2)})`;
+                    }
+                });
+            });
+        }
+
+        function searchMarkets() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const allCards = document.querySelectorAll('.market-card');
+            
+            allCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    card.style.border = searchTerm ? '2px solid #00f5ff' : '1px solid rgba(255, 255, 255, 0.1)';
+                } else {
+                    card.style.display = searchTerm ? 'none' : 'block';
+                    card.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+                }
+            });
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', searchMarkets);
+
+        // Add click handlers to market cards
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.market-card')) {
+                const card = e.target.closest('.market-card');
+                const symbol = card.querySelector('.market-symbol')?.textContent || 
+                              card.querySelector('.market-name')?.textContent.split(' ')[0];
+                
+                // Simulate opening trading interface
+                alert(`Opening trading interface for ${symbol}...`);
+            }
+        });
+
+        // Initialize the page
+        populateMarkets();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(refreshData, 30000);
+        
+        // Add some animation delays for cards
+        setTimeout(() => {
+            const cards = document.querySelectorAll('.market-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.style.animation = 'fadeIn 0.5s ease forwards';
+            });
+        }, 100);
+    </script>
+</body>
+</html>

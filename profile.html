@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Trading Account</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+            padding: 24px;
+        }
+
+        .header-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .user-details h1 {
+            font-size: 28px;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .user-details p {
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #4b5563;
+        }
+
+        .grid {
+            display: grid;
+            gap: 24px;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .icon-blue {
+            color: #3b82f6;
+        }
+
+        .icon-green {
+            color: #10b981;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-display {
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 46px;
+        }
+
+        .form-display.monospace {
+            font-family: 'Courier New', monospace;
+        }
+
+        .form-textarea {
+            resize: none;
+            height: 80px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .status-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .status-green {
+            background: #f0fdf4;
+        }
+
+        .status-blue {
+            background: #eff6ff;
+        }
+
+        .status-purple {
+            background: #faf5ff;
+        }
+
+        .status-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .status-green .status-title {
+            color: #166534;
+        }
+
+        .status-blue .status-title {
+            color: #1e3a8a;
+        }
+
+        .status-purple .status-title {
+            color: #581c87;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-value {
+            font-weight: 500;
+        }
+
+        .status-blue .status-value {
+            color: #1d4ed8;
+        }
+
+        .status-purple .status-value {
+            color: #7c2d12;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .masked-text {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .header-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                width: 100%;
+                justify-content: stretch;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="card header-card">
+            <div class="user-info">
+                <div class="avatar" id="userAvatar">JA</div>
+                <div class="user-details">
+                    <h1 id="displayName">John Anderson</h1>
+                    <p>Premium Trading Account</p>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="toggleSensitiveData()">
+                    <span id="toggleIcon">Show</span>
+                    <span id="toggleText">Show Details</span>
+                </button>
+                <button class="btn btn-primary" id="editBtn" onclick="toggleEdit()">
+                    <span>Edit</span>
+                    <span>Edit Profile</span>
+                </button>
+                <button class="btn btn-success hidden" id="saveBtn" onclick="saveProfile()">
+                    <span>Save</span>
+                    <span>Save</span>
+                </button>
+                <button class="btn btn-danger hidden" id="cancelBtn" onclick="cancelEdit()">
+                    <span>Cancel</span>
+                    <span>Cancel</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Details -->
+        <div class="grid grid-2">
+            <!-- Personal Information -->
+            <div class="card">
+                <h2 class="section-title">
+                    <span class="icon icon-blue">👤</span>
+                    Personal Information
+                </h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input hidden" id="nameInput" value="John Anderson">
+                    <div class="form-display" id="nameDisplay">John Anderson</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input hidden" id="emailInput" value="john.anderson@email.com">
+                    <div class="form-display" id="emailDisplay">
+                        <span>Email:</span>
+                        john.anderson@email.com
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input hidden" id="phoneInput" value="+1 (555) 123-4567">
+                    <div class="form-display" id="phoneDisplay">
+                        <span>Phone:</span>
+                        <span id="phoneValue">+1 (555) 123-4567</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Address</label>
+                    <textarea class="form-input form-textarea hidden" id="addressInput">1234 Wall Street, New York, NY 10005</textarea>
+                    <div class="form-display" id="addressDisplay">
+                        <span>Address:</span>
+                        1234 Wall Street, New York, NY 10005
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trading Information -->
+            <div class="card">
+                <h2 class="section-title">
+                    <span class="icon icon-green">🏢</span>
+                    Trading Information
+                </h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Client ID</label>
+                    <div class="form-display monospace">
+                        <span>ID:</span>
+                        <span id="clientIdValue">CL2024789456</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">BOID (Beneficiary Owner ID)</label>
+                    <div class="form-display monospace">
+                        <span>BOID:</span>
+                        <span id="boidValue">BD1234567890123</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Depository Name</label>
+                    <input type="text" class="form-input hidden" id="depositoryInput" value="Central Depository Services Ltd.">
+                    <div class="form-display" id="depositoryDisplay">
+                        <span>Depository:</span>
+                        Central Depository Services Ltd.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">US Stock Broker</label>
+                    <input type="text" class="form-input hidden" id="brokerInput" value="Goldman Sachs Securities">
+                    <div class="form-display" id="brokerDisplay">
+                        <span>Broker:</span>
+                        Goldman Sachs Securities
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Status -->
+        <div class="card">
+            <h2 class="section-title">Account Status</h2>
+            
+            <div class="status-grid">
+                <div class="status-card status-green">
+                    <h3 class="status-title">Account Status</h3>
+                    <span class="status-badge">
+                        ✓ Active
+                    </span>
+                </div>
+                
+                <div class="status-card status-blue">
+                    <h3 class="status-title">Registration Date</h3>
+                    <p class="status-value">2024-01-15</p>
+                </div>
+                
+                <div class="status-card status-purple">
+                    <h3 class="status-title">Last Login</h3>
+                    <p class="status-value">2024-08-03 09:30 AM</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isEditing = false;
+        let showSensitive = false;
+        
+        // Original data for masking
+        const originalData = {
+            phone: '+1 (555) 123-4567',
+            clientId: 'CL2024789456',
+            boid: 'BD1234567890123'
+        };
+
+        function maskData(data) {
+            if (data.length <= 4) return '*'.repeat(4);
+            return '*'.repeat(data.length - 4) + data.slice(-4);
+        }
+
+        function toggleSensitiveData() {
+            showSensitive = !showSensitive;
+            const toggleIcon = document.getElementById('toggleIcon');
+            const toggleText = document.getElementById('toggleText');
+            
+            if (showSensitive) {
+                toggleIcon.textContent = 'Hide';
+                toggleText.textContent = 'Hide Details';
+                document.getElementById('phoneValue').textContent = originalData.phone;
+                document.getElementById('clientIdValue').textContent = originalData.clientId;
+                document.getElementById('boidValue').textContent = originalData.boid;
+            } else {
+                toggleIcon.textContent = 'Show';
+                toggleText.textContent = 'Show Details';
+                document.getElementById('phoneValue').textContent = maskData(originalData.phone);
+                document.getElementById('clientIdValue').textContent = maskData(originalData.clientId);
+                document.getElementById('boidValue').textContent = maskData(originalData.boid);
+            }
+        }
+
+        function toggleEdit() {
+            isEditing = !isEditing;
+            
+            const editBtn = document.getElementById('editBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            
+            const inputs = document.querySelectorAll('.form-input');
+            const displays = document.querySelectorAll('.form-display');
+            
+            if (isEditing) {
+                editBtn.classList.add('hidden');
+                saveBtn.classList.remove('hidden');
+                cancelBtn.classList.remove('hidden');
+                
+                inputs.forEach(input => input.classList.remove('hidden'));
+                displays.forEach(display => display.classList.add('hidden'));
+            } else {
+                editBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+                cancelBtn.classList.add('hidden');
+                
+                inputs.forEach(input => input.classList.add('hidden'));
+                displays.forEach(display => display.classList.remove('hidden'));
+            }
+        }
+
+        function saveProfile() {
+            // Update displays with new values
+            document.getElementById('nameDisplay').textContent = document.getElementById('nameInput').value;
+            document.getElementById('displayName').textContent = document.getElementById('nameInput').value;
+            
+            // Update avatar initials
+            const name = document.getElementById('nameInput').value;
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+            document.getElementById('userAvatar').textContent = initials;
+            
+            document.getElementById('emailDisplay').innerHTML = '<span>Email:</span>' + document.getElementById('emailInput').value;
+            
+            originalData.phone = document.getElementById('phoneInput').value;
+            document.getElementById('phoneValue').textContent = showSensitive ? originalData.phone : maskData(originalData.phone);
+            
+            document.getElementById('addressDisplay').innerHTML = '<span>Address:</span>' + document.getElementById('addressInput').value;
+            document.getElementById('depositoryDisplay').innerHTML = '<span>Depository:</span>' + document.getElementById('depositoryInput').value;
+            document.getElementById('brokerDisplay').innerHTML = '<span>Broker:</span>' + document.getElementById('brokerInput').value;
+            
+            toggleEdit();
+            alert('Profile updated successfully!');
+        }
+
+        function cancelEdit() {
+            // Reset form values to original
+            document.getElementById('nameInput').value = 'John Anderson';
+            document.getElementById('emailInput').value = 'john.anderson@email.com';
+            document.getElementById('phoneInput').value = originalData.phone;
+            document.getElementById('addressInput').value = '1234 Wall Street, New York, NY 10005';
+            document.getElementById('depositoryInput').value = 'Central Depository Services Ltd.';
+            document.getElementById('brokerInput').value = 'Goldman Sachs Securities';
+            
+            toggleEdit();
+        }
+
+        // Initialize with masked data
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleSensitiveData(); // This will mask the data initially
+        });
+    </script>
+</body>
+</html>
